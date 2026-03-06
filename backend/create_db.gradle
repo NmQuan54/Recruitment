@@ -1,0 +1,26 @@
+tasks.register("createDatabase") {
+    doLast {
+        java.net.URLClassLoader classLoader = new java.net.URLClassLoader(
+            configurations.runtimeClasspath.files.collect { it.toURI().toURL() } as java.net.URL[],
+            this.class.classLoader
+        )
+        
+        Class driverClass = classLoader.loadClass("org.postgresql.Driver")
+        java.sql.Driver driver = driverClass.newInstance() as java.sql.Driver
+        
+        java.util.Properties props = new java.util.Properties()
+        props.setProperty("user", "postgres")
+        props.setProperty("password", "123456789")
+        
+        try {
+            def conn = driver.connect("jdbc:postgresql://localhost:5432/", props)
+            def stmt = conn.createStatement()
+            stmt.executeUpdate("CREATE DATABASE recruitment_db")
+            println "SUCCESS: Database recruitment_db created!"
+            stmt.close()
+            conn.close()
+        } catch (Exception e) {
+            println "Database might already exist or error: " + e.getMessage()
+        }
+    }
+}

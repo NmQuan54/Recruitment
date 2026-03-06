@@ -1,0 +1,17 @@
+.gradle/
+build/
+node_modules/
+*.log
+.DS_Store
+.env
+dist/
+target/
+bin/
+*.class
+out/
+.idea/
+.vscode/
+frontend/dist/
+frontend/node_modules/
+backend/build/
+backend/.gradle/
