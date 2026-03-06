@@ -140,7 +140,7 @@ const Navbar = () => {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-[100] px-4 py-6">
-      <div className="w-[90%] mx-auto">
+      <div className="max-w-[90rem] mx-auto w-full">
         <motion.div
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
