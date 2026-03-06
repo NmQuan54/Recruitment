@@ -47,8 +47,8 @@ const AppContent = () => {
       
       {!isAuthPage && <Navbar />}
       
-      <main className={`flex-grow w-full flex flex-col ${!isAuthPage ? 'pt-0' : ''}`}>
-        <div className="w-[90%] mx-auto overflow-x-hidden">
+      <main className={`flex-grow w-[90%] mx-auto flex flex-col ${!isAuthPage ? 'pt-0' : ''}`}>
+        <div className="w-full">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
@@ -59,7 +59,7 @@ const AppContent = () => {
             <Route path="/opportunities" element={<Opportunities />} />
             <Route path="/companies" element={<Companies />} />
             <Route path="/companies/:id" element={<CompanyDetail />} />
-            {/* Protected Routes */}
+            {}
             <Route path="/employer/dashboard" element={
               <ProtectedRoute allowedRoles={['EMPLOYER']}>
                 <EmployerDashboard />
@@ -122,7 +122,7 @@ const AppContent = () => {
               </ProtectedRoute>
             } />
             
-            {/* Admin Routes */}
+            {}
             <Route path="/admin" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminDashboard /></ProtectedRoute>} />
             <Route path="/admin/users" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminUsers /></ProtectedRoute>} />
             <Route path="/admin/companies" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminCompanies /></ProtectedRoute>} />

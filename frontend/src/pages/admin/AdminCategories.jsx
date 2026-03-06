@@ -75,7 +75,7 @@ const AdminCategories = () => {
       </div>
 
       <div className="grid lg:grid-cols-3 gap-10">
-        {/* Form Add */}
+        {}
         <div className="lg:col-span-1">
           <div className="bg-slate-900 text-white p-10 rounded-[3rem] shadow-2xl sticky top-32 overflow-hidden">
              <div className="absolute top-0 right-0 w-32 h-32 bg-brand-500/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
@@ -110,7 +110,7 @@ const AdminCategories = () => {
           </div>
         </div>
 
-        {/* List */}
+        {}
         <div className="lg:col-span-2 space-y-6">
            <div className="relative mb-8">
               <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400" size={20} />

@@ -21,7 +21,7 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   }
 
   if (allowedRoles && !allowedRoles.includes(user.role)) {
-    // Redirect to home if user role doesn't match
+    
     return <Navigate to="/" replace />;
   }
 

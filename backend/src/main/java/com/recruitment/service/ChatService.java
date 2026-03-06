@@ -27,9 +27,7 @@ public class ChatService {
     @Autowired
     private NotificationService notificationService;
 
-    /**
-     * Lấy hoặc tạo phòng chat giữa 2 người cho 1 job
-     */
+    
     @Transactional
     public ChatRoom getOrCreateRoom(Long employerId, Long candidateId, Long jobId) {
         return chatRoomRepository.findByEmployerIdAndCandidateIdAndJobId(employerId, candidateId, jobId)
@@ -46,9 +44,7 @@ public class ChatService {
                 });
     }
 
-    /**
-     * Gửi tin nhắn
-     */
+    
     @Transactional
     public ChatMessage sendMessage(Long roomId, Long senderId, String content) {
         ChatRoom room = chatRoomRepository.findById(roomId).orElseThrow();
@@ -64,7 +60,7 @@ public class ChatService {
         room.setLastContentAt(LocalDateTime.now());
         chatRoomRepository.save(room);
 
-        // 🔔 Notify recipient
+        
         User recipient = room.getEmployer().getId().equals(senderId) ? room.getCandidate() : room.getEmployer();
         notificationService.createNotification(
                 recipient,

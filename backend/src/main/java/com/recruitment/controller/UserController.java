@@ -22,10 +22,7 @@ public class UserController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    /**
-     * Đổi mật khẩu cho user đang đăng nhập
-     * Body: { "currentPassword": "...", "newPassword": "..." }
-     */
+    
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/profile")
     public ResponseEntity<User> updateProfile(

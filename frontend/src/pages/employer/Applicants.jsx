@@ -4,7 +4,7 @@ import api from '../../services/api';
 import { toast } from 'react-hot-toast';
 import { 
   Users, 
-  ExternalLink, 
+  Download, 
   CheckCircle, 
   XCircle, 
   Clock, 
@@ -87,6 +87,39 @@ const JobApplicants = () => {
       setFeedbackContent('');
     } catch (error) {
       toast.error('Lỗi khi cập nhật trạng thái');
+    }
+  };
+
+  const handleDownload = async (url, candidateName) => {
+    if (!url) {
+      toast.error('Không tìm thấy đường dẫn CV');
+      return;
+    }
+    
+    try {
+      toast.loading('Đang chuẩn bị tải xuống...', { id: 'downloading' });
+      
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Network response was not ok');
+      
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      
+      const extension = url.split('.').pop();
+      link.download = `CV_${candidateName.replace(/\s+/g, '_')}.${extension}`;
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+      toast.success('Tải xuống thành công', { id: 'downloading' });
+    } catch (error) {
+      console.error('Download error:', error);
+      toast.error('Lỗi khi tải file. Đang thử mở trong tab mới...', { id: 'downloading' });
+      window.open(url, '_blank');
     }
   };
 
@@ -203,8 +236,8 @@ const JobApplicants = () => {
                         </div>
                      </div>
                      <div className="flex items-end">
-                        <button className="flex items-center gap-2 text-brand-600 font-bold text-sm hover:underline">
-                           Xem CV <ExternalLink size={16} />
+                        <button onClick={() => handleDownload(app.resumeUrl, app.candidate?.fullName || 'Ung_Vien')} className="flex items-center gap-2 text-brand-600 font-bold text-sm hover:underline">
+                           Tải CV <Download size={16} />
                         </button>
                      </div>
                   </div>

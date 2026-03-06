@@ -19,18 +19,14 @@ public class NotificationController {
     @Autowired
     private NotificationService notificationService;
 
-    /**
-     * Lấy danh sách thông báo
-     */
+    
     @PreAuthorize("isAuthenticated()")
     @GetMapping
     public ResponseEntity<List<Notification>> getNotifications(Authentication authentication) {
         return ResponseEntity.ok(notificationService.getNotifications(authentication.getName()));
     }
 
-    /**
-     * Đếm số thông báo chưa đọc (cho badge trên Navbar)
-     */
+    
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/unread-count")
     public ResponseEntity<Map<String, Long>> getUnreadCount(Authentication authentication) {
@@ -38,9 +34,7 @@ public class NotificationController {
         return ResponseEntity.ok(Map.of("count", count));
     }
 
-    /**
-     * Đánh dấu 1 thông báo đã đọc
-     */
+    
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/{id}/read")
     public ResponseEntity<Void> markRead(
@@ -50,9 +44,7 @@ public class NotificationController {
         return ResponseEntity.ok().build();
     }
 
-    /**
-     * Đánh dấu tất cả đã đọc
-     */
+    
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/read-all")
     public ResponseEntity<Void> markAllRead(Authentication authentication) {

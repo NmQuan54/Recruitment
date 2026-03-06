@@ -16,18 +16,14 @@ public class CompanyController {
     @Autowired
     private CompanyService companyService;
 
-    /**
-     * GET thông tin công ty của employer đang đăng nhập
-     */
+    
     @PreAuthorize("hasRole('EMPLOYER')")
     @GetMapping
     public ResponseEntity<Company> getMyCompany(Authentication authentication) {
         return ResponseEntity.ok(companyService.getCompanyByEmail(authentication.getName()));
     }
 
-    /**
-     * PUT cập nhật thông tin công ty
-     */
+    
     @PreAuthorize("hasRole('EMPLOYER')")
     @PutMapping
     public ResponseEntity<Company> updateCompany(
@@ -36,12 +32,10 @@ public class CompanyController {
         return ResponseEntity.ok(companyService.updateCompany(authentication.getName(), updatedInfo));
     }
 
-    /**
-     * GET thông tin công ty công khai theo ID (cho ứng viên xem)
-     */
+    
     @GetMapping("/{companyId}/public")
     public ResponseEntity<Company> getPublicCompany(@PathVariable Long companyId) {
-        // Reuse by fetching directly – simple lookup
+        
         return ResponseEntity.ok(companyService.getCompanyById(companyId));
     }
 }

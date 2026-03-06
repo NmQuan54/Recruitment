@@ -39,7 +39,7 @@ const JobSearch = () => {
   useEffect(() => {
     const fetchCats = async () => {
       try {
-        const res = await api.get('/admin/categories');
+        const res = await api.get('/categories');
         setCategories(res.data);
       } catch (_) {}
     };
@@ -295,7 +295,7 @@ const JobSearch = () => {
                 ))}
               </div>
 
-              {/* Pagination */}
+              {}
               {totalPages > 1 && (
                 <div className="flex items-center justify-center gap-3 mt-12">
                   <button

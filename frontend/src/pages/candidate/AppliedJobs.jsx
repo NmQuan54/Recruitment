@@ -78,7 +78,7 @@ const CandidateAppliedJobs = () => {
               className="group bg-white rounded-[3rem] border border-slate-100 p-8 shadow-xl hover:shadow-brand-500/10 transition-all duration-500 relative overflow-hidden"
             >
                <div className="flex flex-col lg:flex-row gap-10 items-start">
-                  {/* Company Logo */}
+                  {}
                   <div className="w-24 h-24 bg-white border border-slate-100 rounded-3xl p-4 flex items-center justify-center shrink-0 shadow-sm transition-transform">
                      {app.job?.company?.logoUrl ? (
                        <img src={app.job.company.logoUrl} alt={app.job.company.name} className="w-full h-full object-contain" />
@@ -163,7 +163,7 @@ const CandidateAppliedJobs = () => {
                   </div>
                </div>
                
-               {/* Decorative background element */}
+               {}
                <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-brand-500/5 rounded-full blur-3xl group-hover:bg-brand-500/10 transition-colors"></div>
             </div>
           );

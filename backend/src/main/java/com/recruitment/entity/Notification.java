@@ -31,14 +31,14 @@ public class Notification {
     @Column(columnDefinition = "TEXT")
     private String message;
 
-    // APPLICATION_STATUS, JOB_APPLIED, INTERVIEW_SCHEDULED, GENERAL
+    
     @Column(nullable = false)
     private String type;
 
     @Column(name = "is_read", nullable = false)
     private boolean read = false;
 
-    // Optional reference to related entity (e.g. applicationId, jobId)
+    
     @Column(name = "reference_id")
     private Long referenceId;
 
@@ -48,6 +48,6 @@ public class Notification {
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
-        // read is already false by default
+        
     }
 }

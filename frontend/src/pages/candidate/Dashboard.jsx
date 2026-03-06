@@ -68,7 +68,7 @@ const CandidateDashboard = () => {
       </div>
 
       <div className="grid lg:grid-cols-3 gap-10">
-        {/* Main Application List */}
+        {}
         <div className="lg:col-span-2 space-y-8">
            <div className="flex items-center justify-between">
               <h2 className="text-2xl font-bold text-slate-900 flex items-center gap-3">
@@ -140,7 +140,7 @@ const CandidateDashboard = () => {
            )}
         </div>
 
-        {/* Sidebar Mini Profile */}
+        {}
         <div className="space-y-8">
            <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-xl relative overflow-hidden">
               <div className="absolute -top-10 -right-10 w-40 h-40 bg-brand-50 rounded-full blur-3xl"></div>

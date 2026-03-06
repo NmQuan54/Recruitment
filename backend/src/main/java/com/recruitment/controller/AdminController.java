@@ -34,7 +34,7 @@ public class AdminController {
     @Autowired
     private JobRepository jobRepository;
 
-    // Quản lý Doanh nghiệp
+    
     @GetMapping("/companies")
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional(readOnly = true)
@@ -64,7 +64,7 @@ public class AdminController {
         }
     }
 
-    // Quản lý Danh mục
+    
     @GetMapping("/categories")
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional(readOnly = true)
@@ -87,7 +87,7 @@ public class AdminController {
         return ResponseEntity.ok().build();
     }
 
-    // Quản lý Người dùng
+    
     @GetMapping("/users")
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional(readOnly = true)
@@ -116,7 +116,7 @@ public class AdminController {
         }
     }
 
-    // Quản lý Đăng tin
+    
     @GetMapping("/jobs")
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional(readOnly = true)
@@ -138,7 +138,7 @@ public class AdminController {
         return ResponseEntity.ok().build();
     }
 
-    // Stats cho Dashboard (Báo cáo)
+    
     @GetMapping("/stats")
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional(readOnly = true)

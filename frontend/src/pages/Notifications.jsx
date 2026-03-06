@@ -66,7 +66,7 @@ const NotificationsPage = () => {
 
   return (
     <div className="w-full px-4 pt-32 pb-16">
-      {/* Header */}
+      {}
       <div className="flex items-center justify-between mb-10">
         <div>
           <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Thông báo</h1>
@@ -88,7 +88,7 @@ const NotificationsPage = () => {
         )}
       </div>
 
-      {/* Content */}
+      {}
       {loading ? (
         <div className="flex flex-col items-center py-32">
           <Loader2 className="animate-spin text-brand-600 mb-4" size={40} />
@@ -117,17 +117,17 @@ const NotificationsPage = () => {
                     : 'bg-white border-brand-100 shadow-md shadow-brand-50 hover:shadow-lg hover:shadow-brand-100'
                   }`}
               >
-                {/* Unread indicator */}
+                {}
                 {!n.read && (
                   <span className="absolute top-5 right-5 w-2.5 h-2.5 bg-brand-500 rounded-full" />
                 )}
 
-                {/* Icon */}
+                {}
                 <div className={`w-12 h-12 ${cfg.bg} ${cfg.color} rounded-2xl flex items-center justify-center shrink-0 mt-0.5`}>
                   <Icon size={22} />
                 </div>
 
-                {/* Content */}
+                {}
                 <div className="flex-1 min-w-0">
                   <p className={`font-bold text-slate-900 mb-1 ${!n.read ? 'text-brand-900' : ''}`}>
                     {n.title}

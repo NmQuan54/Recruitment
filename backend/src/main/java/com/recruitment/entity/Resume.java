@@ -23,10 +23,10 @@ public class Resume {
     private User user;
 
     @Column(nullable = false)
-    private String name; // e.g., "Fullstack Developer Resume"
+    private String name; 
 
     @Column(name = "resume_url", nullable = false)
-    private String resumeUrl; // Path to uploaded file or generated content
+    private String resumeUrl; 
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

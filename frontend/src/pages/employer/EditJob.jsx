@@ -109,7 +109,7 @@ const EditJob = () => {
 
         <form onSubmit={handleSubmit} className="space-y-8">
           <div className="grid md:grid-cols-2 gap-8">
-            {/* Tiêu đề */}
+            {}
             <div className="space-y-2">
               <label className="text-sm font-bold text-slate-700 ml-1 uppercase tracking-wider">
                 Tiêu đề công việc <span className="text-red-500">*</span>
@@ -128,7 +128,7 @@ const EditJob = () => {
               </div>
             </div>
 
-            {/* Loại hình */}
+            {}
             <div className="space-y-2">
               <label className="text-sm font-bold text-slate-700 ml-1 uppercase tracking-wider">
                 Loại hình
@@ -150,7 +150,7 @@ const EditJob = () => {
             </div>
           </div>
 
-          {/* Địa điểm */}
+          {}
           <div className="space-y-2">
             <label className="text-sm font-bold text-slate-700 ml-1 uppercase tracking-wider">
               Vị trí làm việc
@@ -169,7 +169,7 @@ const EditJob = () => {
             </div>
           </div>
 
-          {/* Lương */}
+          {}
           <div className="grid md:grid-cols-2 gap-8">
             <div className="space-y-2">
               <label className="text-sm font-bold text-slate-700 ml-1 uppercase tracking-wider">
@@ -234,7 +234,7 @@ const EditJob = () => {
             </div>
           </div>
 
-          {/* Deadline */}
+          {}
           <div className="space-y-2">
             <label className="text-sm font-bold text-slate-700 ml-1 uppercase tracking-wider">
               Hạn cuối ứng tuyển
@@ -251,7 +251,7 @@ const EditJob = () => {
             </div>
           </div>
 
-          {/* Mô tả */}
+          {}
           <div className="space-y-2">
             <label className="text-sm font-bold text-slate-700 ml-1 uppercase tracking-wider">
               Mô tả công việc
@@ -267,7 +267,7 @@ const EditJob = () => {
             />
           </div>
 
-          {/* Yêu cầu */}
+          {}
           <div className="space-y-2">
             <label className="text-sm font-bold text-slate-700 ml-1 uppercase tracking-wider">
               Yêu cầu ứng viên

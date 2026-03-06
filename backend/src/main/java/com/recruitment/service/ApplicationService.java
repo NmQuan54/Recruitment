@@ -8,7 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 
@@ -29,44 +31,78 @@ public class ApplicationService {
 
     @Transactional
     public Application applyForJob(String candidateEmail, Long jobId, String coverLetter, String resumeUrl) {
-        User candidate = userRepository.findByEmail(candidateEmail)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy ứng viên"));
+        System.out.println("Apply for job request: candidate=" + candidateEmail + ", jobId=" + jobId
+                + ", resume=" + resumeUrl);
+        try {
+            User candidate = userRepository.findByEmail(candidateEmail)
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy ứng viên"));
 
-        if (candidate.getRole() != Role.CANDIDATE) {
-            throw new RuntimeException("Chỉ ứng viên mới có thể nộp đơn");
+            if (candidate.getRole() != Role.CANDIDATE) {
+                throw new RuntimeException("Chỉ ứng viên mới có thể nộp đơn");
+            }
+
+            Job job = jobRepository.findById(jobId)
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy công việc"));
+
+            if (job.getStatus() != JobStatus.ACTIVE) {
+                throw new RuntimeException("Không thể ứng tuyển vào công việc không còn hoạt động");
+            }
+
+            
+            LocalDateTime startOfToday = LocalDate.now().atStartOfDay();
+            long applicationsToday = applicationRepository.countByJobIdAndCandidateIdAndAppliedAtAfter(jobId,
+                    candidate.getId(), startOfToday);
+
+            if (applicationsToday >= 2) {
+                throw new RuntimeException(
+                        "Bạn đã nộp đơn cho công việc này 2 lần trong hôm nay rồi. Vui lòng quay lại vào ngày mai!");
+            }
+
+            Application application = Application.builder()
+                    .job(job)
+                    .candidate(candidate)
+                    .coverLetter(coverLetter)
+                    .resumeUrl(resumeUrl)
+                    .status(ApplicationStatus.PENDING)
+                    .build();
+
+            
+            System.out.println("Step 4: Saving application entity...");
+            Application saved = applicationRepository.save(application);
+            applicationRepository.flush();
+            System.out.println("Step 5: Application saved and flushed. ID: " + saved.getId());
+
+            
+            String jTitle = (job.getTitle() != null) ? job.getTitle() : "vị trí mới";
+            String cName = "Công ty";
+            if (job.getCompany() != null && job.getCompany().getName() != null) {
+                cName = job.getCompany().getName();
+            }
+
+            try {
+                System.out.println("Creating notification for candidate ID: " + candidate.getId());
+                notificationService.createNotification(
+                        candidate,
+                        "JOB_APPLIED",
+                        "Nộp đơn thành công",
+                        "Bạn đã nộp đơn thành công cho vị trí \"" + jTitle
+                                + "\" tại " + cName + ".",
+                        saved.getId());
+                System.out.println("Notification created successfully");
+            } catch (Exception ne) {
+                System.err.println("Warning: Notification failed (but application was saved): " + ne.getMessage());
+                
+            }
+
+            return saved;
+        } catch (RuntimeException e) {
+            System.err.println("Business logic error in ApplicationService: " + e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            System.err.println("Unexpected error in ApplicationService: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Lỗi xử lý đơn: " + (e.getMessage() != null ? e.getMessage() : e.toString()));
         }
-
-        Job job = jobRepository.findById(jobId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy công việc"));
-
-        if (job.getStatus() != JobStatus.ACTIVE) {
-            throw new RuntimeException("Không thể ứng tuyển vào công việc không còn hoạt động");
-        }
-
-        if (applicationRepository.existsByJobIdAndCandidateId(jobId, candidate.getId())) {
-            throw new RuntimeException("Bạn đã nộp đơn cho công việc này rồi");
-        }
-
-        Application application = Application.builder()
-                .job(job)
-                .candidate(candidate)
-                .coverLetter(coverLetter)
-                .resumeUrl(resumeUrl)
-                .status(ApplicationStatus.PENDING)
-                .build();
-
-        Application saved = applicationRepository.save(application);
-
-        // 🔔 Thông báo cho ứng viên xác nhận đã nộp đơn thành công
-        notificationService.createNotification(
-                candidate,
-                "JOB_APPLIED",
-                "Nộp đơn thành công",
-                "Bạn đã nộp đơn thành công cho vị trí \"" + job.getTitle()
-                        + "\" tại " + job.getCompany().getName() + ".",
-                jobId);
-
-        return saved;
     }
 
     public List<Application> getCandidateApplications(String candidateEmail) {
@@ -107,7 +143,7 @@ public class ApplicationService {
         }
         Application saved = applicationRepository.save(application);
 
-        // 🔔 Thông báo cho ứng viên khi trạng thái thay đổi
+        
         if (!oldStatus.equals(status)) {
             String msg = buildStatusChangeMessage(status, application.getJob());
             notificationService.createNotification(
@@ -136,7 +172,7 @@ public class ApplicationService {
         application.setInterviewNotes(notes);
         Application saved = applicationRepository.save(application);
 
-        // 🔔 Thông báo phỏng vấn cho ứng viên
+        
         notificationService.createNotification(
                 application.getCandidate(),
                 "INTERVIEW_SCHEDULED",

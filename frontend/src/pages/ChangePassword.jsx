@@ -111,7 +111,7 @@ const ChangePassword = () => {
       </button>
 
       <div className="bg-white rounded-[3rem] shadow-2xl shadow-brand-100/20 p-8 md:p-12 border border-slate-50">
-        {/* Header */}
+        {}
         <div className="text-center mb-12">
           <div className="w-20 h-20 bg-brand-50 rounded-[1.75rem] mx-auto flex items-center justify-center mb-6">
             <ShieldCheck size={36} className="text-brand-600" />
@@ -148,7 +148,7 @@ const ChangePassword = () => {
               toggleShow={() => setShowNew(!showNew)}
             />
 
-            {/* Strength hint */}
+            {}
             {form.newPassword.length > 0 && (
               <div className="ml-1">
                 <div className="flex gap-1.5 mb-1">

@@ -73,7 +73,7 @@ public class AuthService {
             throw new RuntimeException("Error: Role is not valid.");
         }
 
-        // Create new user's account
+        
         User user = User.builder()
                 .email(signUpRequest.getEmail())
                 .fullName(signUpRequest.getFullName())
@@ -83,17 +83,17 @@ public class AuthService {
 
         user = userRepository.save(user);
 
-        // Create associated profile based on role
+        
         if (role == Role.EMPLOYER) {
             Company company = Company.builder()
                     .user(user)
-                    .name(user.getFullName() + "'s Company") // Default name
+                    .name(user.getFullName() + "'s Company") 
                     .build();
             companyRepository.save(company);
         } else if (role == Role.CANDIDATE) {
             CandidateProfile profile = CandidateProfile.builder()
                     .user(user)
-                    .title("New Candidate") // Default title
+                    .title("New Candidate") 
                     .build();
             candidateProfileRepository.save(profile);
         }

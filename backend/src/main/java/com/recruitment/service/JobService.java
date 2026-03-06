@@ -35,10 +35,15 @@ public class JobService {
     @Autowired
     private com.recruitment.repository.ApplicationRepository applicationRepository;
 
-    /**
-     * Tìm kiếm nâng cao với filter: keyword, location, jobType, salary range,
-     * category
-     */
+    @Autowired
+    private com.recruitment.repository.SavedJobRepository savedJobRepository;
+
+    @Autowired
+    private com.recruitment.repository.ChatMessageRepository chatMessageRepository;
+
+    @Autowired
+    private com.recruitment.repository.ChatRoomRepository chatRoomRepository;
+
     public Page<Job> searchJobs(String keyword, String location, String jobType,
             BigDecimal salaryMin, BigDecimal salaryMax, Long categoryId, Long companyId, Pageable pageable) {
         return jobRepository.searchJobsAdvanced(keyword, location, jobType, salaryMin, salaryMax, categoryId, companyId,
@@ -72,9 +77,6 @@ public class JobService {
         return jobRepository.save(job);
     }
 
-    /**
-     * Cập nhật nội dung tin tuyển dụng (chỉ employer sở hữu tin mới được sửa)
-     */
     @Transactional
     public Job updateJob(String userEmail, Long jobId, Job updatedJob, List<Long> categoryIds) {
         Job job = getJobById(jobId);
@@ -167,8 +169,10 @@ public class JobService {
         Job job = getJobById(jobId);
         verifyEmployerOwnership(userEmail, job);
 
-        List<Application> applications = applicationRepository.findByJobId(jobId);
-        applicationRepository.deleteAll(applications);
+        chatMessageRepository.deleteByRoomJobId(jobId);
+        chatRoomRepository.deleteByJobId(jobId);
+        applicationRepository.deleteByJobId(jobId);
+        savedJobRepository.deleteByJobId(jobId);
 
         jobRepository.delete(job);
     }

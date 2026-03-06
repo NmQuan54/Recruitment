@@ -11,8 +11,11 @@ import {
   Zap,
   Star,
   Sparkles,
-  Loader2
+  Loader2,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import JobCard from '../components/JobCard';
 import api from '../services/api';
 import { useNavigate } from 'react-router-dom';
@@ -23,12 +26,12 @@ const Home = () => {
   const [featuredJobs, setFeaturedJobs] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
   const [search, setSearch] = React.useState({ keyword: '', location: '' });
+  const [currentIndex, setCurrentIndex] = React.useState(0);
 
   React.useEffect(() => {
     const fetchFeatured = async () => {
        try {
-          // Lấy tin nổi bật (page size nhỏ, sort theo promoted)
-          const res = await api.get('/jobs', { params: { size: 4 } });
+          const res = await api.get('/jobs', { params: { size: 10 } }); 
           setFeaturedJobs(res.data.content || []);
        } catch (_) {} finally {
           setLoading(false);
@@ -37,17 +40,29 @@ const Home = () => {
     fetchFeatured();
   }, []);
 
+  const nextSlide = () => {
+    if (currentIndex + 3 < featuredJobs.length) {
+      setCurrentIndex(prev => prev + 1);
+    }
+  };
+
+  const prevSlide = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex(prev => prev - 1);
+    }
+  };
+
   const handleSearch = () => {
      navigate(`/jobs?keyword=${search.keyword}&location=${search.location}`);
   };
 
   return (
     <div className="flex flex-col min-h-screen pt-32">
-      {/* Background Decor */}
+      {}
       <div className="bg-blob w-[600px] h-[600px] bg-brand-100/40 -top-40 -left-60"></div>
       <div className="bg-blob w-[500px] h-[500px] bg-brand-200/20 bottom-0 -right-40"></div>
 
-      {/* Hero Section */}
+      {}
       <section className="relative pb-32 overflow-hidden w-full flex justify-center">
         <div className="container-center relative z-10 flex flex-col items-center">
           <div className="text-center max-w-none">
@@ -67,7 +82,7 @@ const Home = () => {
               Kết nối <span className="text-brand-600 font-bold underline decoration-brand-200 underline-offset-8">25,000+</span> ứng viên tiềm năng với những doanh nghiệp hàng đầu. Chuyên nghiệp - Uy tín - Hiệu quả.
             </p>
 
-            {/* Professional Search Bar */}
+            {}
             <div className="max-w-none w-full mx-auto glass-effect p-3 rounded-[3rem] flex flex-col md:flex-row gap-2 mb-16 group transition-all duration-700 hover:shadow-2xl hover:shadow-brand-200/40">
               <div className="flex-[1.5] flex items-center px-8 py-5 gap-5 bg-white/50 rounded-[2.5rem] border border-transparent focus-within:border-brand-200 focus-within:bg-white transition-all duration-300">
                 <Search className="h-6 w-6 text-brand-500" />
@@ -107,7 +122,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Stats Section */}
+      {}
       <section className="py-12 w-full flex justify-center -translate-y-12">
         <div className="container-center">
            <div className="glass-effect rounded-[4rem] p-12 md:p-20 grid grid-cols-2 lg:grid-cols-4 gap-12 text-center group shadow-2xl shadow-slate-200/50">
@@ -131,7 +146,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Featured Jobs Section */}
+      {}
       <section className="py-24 w-full flex justify-center bg-white relative">
          <div className="container-center relative z-10">
             <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8">
@@ -157,12 +172,53 @@ const Home = () => {
                   <Loader2 className="animate-spin text-brand-600" size={40} />
                </div>
             ) : featuredJobs.length > 0 ? (
-               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                  {featuredJobs.map(job => (
-                     <div key={job.id} className="flex">
-                        <JobCard key={job.id} job={job} />
-                     </div>
-                  ))}
+               <div className="relative group">
+                  {}
+                  <div className="absolute top-1/2 -left-6 -translate-y-1/2 z-20 hidden md:block">
+                    <button 
+                      onClick={prevSlide}
+                      disabled={currentIndex === 0}
+                      className={`w-14 h-14 bg-white rounded-full shadow-xl flex items-center justify-center border border-slate-100 transition-all ${currentIndex === 0 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-brand-600 hover:text-white hover:-translate-x-1'}`}
+                    >
+                      <ChevronLeft size={24} />
+                    </button>
+                  </div>
+
+                  <div className="absolute top-1/2 -right-6 -translate-y-1/2 z-20 hidden md:block">
+                    <button 
+                      onClick={nextSlide}
+                      disabled={currentIndex + 3 >= featuredJobs.length}
+                      className={`w-14 h-14 bg-white rounded-full shadow-xl flex items-center justify-center border border-slate-100 transition-all ${currentIndex + 3 >= featuredJobs.length ? 'opacity-30 cursor-not-allowed' : 'hover:bg-brand-600 hover:text-white hover:translate-x-1'}`}
+                    >
+                      <ChevronRight size={24} />
+                    </button>
+                  </div>
+
+                  <div className="overflow-hidden pb-8">
+                    <motion.div 
+                      className="flex gap-8 items-stretch"
+                      initial={false}
+                      animate={{ x: `calc(-${currentIndex * (100 / 3)}% - ${currentIndex * (32 / 3)}px)` }}
+                      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                    >
+                      {featuredJobs.map(job => (
+                        <div key={job.id} className="min-w-[calc((100%-64px)/3)] flex flex-col">
+                            <JobCard job={job} />
+                        </div>
+                      ))}
+                    </motion.div>
+                  </div>
+                  
+                  {}
+                  <div className="flex justify-center mt-12 gap-2">
+                    {Array.from({ length: Math.max(0, featuredJobs.length - 2) }).map((_, i) => (
+                      <button 
+                        key={i}
+                        onClick={() => setCurrentIndex(i)}
+                        className={`h-1.5 rounded-full transition-all duration-300 ${currentIndex === i ? 'w-8 bg-brand-600' : 'w-2 bg-slate-200 hover:bg-slate-300'}`}
+                      />
+                    ))}
+                  </div>
                </div>
             ) : (
                <p className="text-center py-20 text-slate-400 font-bold ">Đang cập nhật các vị trí hấp dẫn...</p>
@@ -199,20 +255,28 @@ const Home = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-40 w-full flex justify-center">
+      {}
+      <section className="py-24 w-full flex justify-center bg-white">
          <div className="container-center">
-             <div className="relative rounded-[4rem] bg-brand-600 p-16 md:p-32 overflow-hidden shadow-2xl">
-                 <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-white/10 bg-blob -mr-40 -mt-40"></div>
-                 <div className="absolute -bottom-40 -left-40 w-[600px] h-[600px] bg-brand-800/10 bg-blob"></div>
+             <div className="relative rounded-[4rem] bg-slate-950 p-12 md:p-20 overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] border border-slate-800">
+                 {}
+                 <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-brand-600/20 blur-[100px] rounded-full -mr-40 -mt-40 animate-pulse"></div>
+                 <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-emerald-500/10 blur-[80px] rounded-full -ml-20 -mb-20 animate-pulse" style={{ animationDelay: '2s' }}></div>
 
                  <div className="relative z-10 flex flex-col items-center text-center text-white max-w-none mx-auto">
-                    <h2 className="text-5xl md:text-8xl font-bold mb-12 leading-tight tracking-tighter text-white">Sẵn sàng để <br /> <span className="text-brand-100">Bứt phá?</span></h2>
-                    <p className="text-brand-50 text-xl md:text-2xl mb-16 max-w-none font-bold opacity-90">Bắt đầu hành trình chinh phục những nấc thang mới trong sự nghiệp của bạn.</p>
+                    <h2 className="text-5xl md:text-7xl font-bold mb-8 leading-tight tracking-tighter text-white">
+                      Sẵn sàng để <br /> 
+                      <span className="bg-clip-text text-transparent bg-gradient-to-r from-brand-300 via-emerald-300 to-amber-200 animate-gradient-x drop-shadow-[0_0_30px_rgba(59,130,246,0.5)]">
+                        Bứt phá?
+                      </span>
+                    </h2>
+                    <p className="text-slate-400 text-lg md:text-xl mb-10 max-w-none font-bold opacity-90 leading-relaxed">
+                      Bắt đầu hành trình chinh phục những nấc thang mới <br className="hidden md:block" /> trong sự nghiệp của bạn ngay hôm nay.
+                    </p>
                     
-                    <div className="flex flex-col sm:flex-row gap-8 w-full justify-center">
-                        <Link to="/register" className="bg-white text-brand-600 px-16 py-6 rounded-[2rem] font-bold text-xl shadow-2xl hover:bg-brand-50 transition-all">Đăng ký ngay</Link>
-                        <Link to="/jobs" className="px-16 py-6 rounded-[2rem] border-2 border-white/40 text-white font-bold text-xl hover:bg-white/10 transition-all duration-500">Xem việc làm</Link>
+                    <div className="flex flex-col sm:flex-row gap-6 w-full justify-center">
+                        <Link to="/register" className="bg-white text-slate-950 px-12 py-5 rounded-[2rem] font-bold text-lg shadow-[0_20px_40px_-10px_rgba(255,255,255,0.3)] hover:bg-brand-50 transition-all hover:-translate-y-1 active:scale-95">Đăng ký ngay</Link>
+                        <Link to="/jobs" className="px-12 py-5 rounded-[2rem] border-2 border-white/10 bg-white/5 text-white font-bold text-lg hover:bg-white/10 hover:border-white/20 transition-all duration-500 backdrop-blur-sm">Xem việc làm</Link>
                     </div>
                  </div>
              </div>

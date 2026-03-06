@@ -17,4 +17,8 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
     @Modifying
     @Query("UPDATE ChatMessage m SET m.isRead = true WHERE m.room.id = :roomId AND m.sender.id != :currentUserId AND m.isRead = false")
     void markAllAsRead(@Param("roomId") Long roomId, @Param("currentUserId") Long currentUserId);
+
+    @Modifying
+    @Query("DELETE FROM ChatMessage m WHERE m.room.job.id = :jobId")
+    void deleteByRoomJobId(@Param("jobId") Long jobId);
 }

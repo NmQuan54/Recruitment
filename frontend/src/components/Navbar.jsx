@@ -47,7 +47,7 @@ const Navbar = () => {
     setMenuOpen(false);
   };
 
-  // Poll unread notifications count every 30s
+  
   useEffect(() => {
     if (!user) { setUnreadCount(0); return; }
     const fetchUnread = async () => {
@@ -61,7 +61,7 @@ const Navbar = () => {
     return () => clearInterval(interval);
   }, [user]);
 
-  // Poll unread chat count every 15s
+  
   useEffect(() => {
     if (!user) { setUnreadChatCount(0); return; }
     const fetchUnreadChat = async () => {
@@ -76,7 +76,7 @@ const Navbar = () => {
     return () => clearInterval(interval);
   }, [user]);
 
-  // Close dropdown when clicking outside
+  
   useEffect(() => {
     const handler = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
@@ -87,14 +87,14 @@ const Navbar = () => {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  // 4. Navbar cho người chưa đăng nhập (Guest) - Các mục điều hướng chính
+  
   const guestNavItems = [
     { label: 'Trang chủ', path: '/', icon: Home },
     { label: 'Tìm việc làm', path: '/jobs', icon: Search },
     { label: 'Công ty', path: '/companies', icon: Building2 },
   ];
 
-  // 1. Navbar cho ADMIN (Quản trị hệ thống)
+  
   const adminMenuItems = [
     { label: 'Dashboard', path: '/admin', icon: LayoutDashboard },
     { label: 'Quản lý người dùng', path: '/admin/users', icon: Users },
@@ -105,7 +105,7 @@ const Navbar = () => {
     { label: 'Đổi mật khẩu', path: '/change-password', icon: KeyRound },
   ];
 
-  // 2. Navbar cho EMPLOYER (Nhà tuyển dụng)
+  
   const employerMenuItems = [
     { label: 'Bảng điều khiển', path: '/employer/dashboard', icon: LayoutDashboard },
     { label: 'Đăng tin mới', path: '/employer/post-job', icon: PlusCircle },
@@ -117,7 +117,7 @@ const Navbar = () => {
     { label: 'Đổi mật khẩu', path: '/change-password', icon: KeyRound },
   ];
 
-  // 3. Navbar cho CANDIDATE (Người tìm việc)
+  
   const candidateMenuItems = [
     { label: 'Dashboard', path: '/candidate/dashboard', icon: LayoutDashboard },
     { label: 'Quản lý CV', path: '/candidate/resume', icon: FileText },
@@ -136,7 +136,7 @@ const Navbar = () => {
   };
 
   const menuItems = getMenuItems();
-  const navItems = user ? guestNavItems : guestNavItems; // Guest và Logged-in vẫn thấy các mục public cơ bản
+  const navItems = user ? guestNavItems : guestNavItems; 
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-[100] px-4 py-6">
@@ -146,7 +146,7 @@ const Navbar = () => {
           animate={{ y: 0, opacity: 1 }}
           className="bg-brand-600/90 backdrop-blur-xl rounded-[2.5rem] border border-white/20 shadow-[0_20px_50px_rgba(37,99,235,0.2)] h-20 px-6 lg:px-10 flex justify-between items-center transition-all duration-500"
         >
-          {/* Logo & Brand */}
+          {}
           <div className="flex items-center gap-6 xl:gap-12">
             <Link to="/" className="flex items-center group shrink-0">
               <motion.img
@@ -157,7 +157,7 @@ const Navbar = () => {
               />
             </Link>
 
-            {/* Navigation Links */}
+            {}
             <div className="hidden lg:flex items-center gap-1 xl:gap-3">
               {navItems.map((item) => (
                 <Link
@@ -190,11 +190,11 @@ const Navbar = () => {
             </div>
           </div>
 
-          {/* User Actions */}
+          {}
           <div className="flex items-center gap-3">
             {user ? (
               <div className="flex items-center gap-3 pl-6 border-l border-white/10">
-                {/* Notification Bell */}
+                {}
                 <Link
                   to="/notifications"
                   className="relative p-3 bg-white/10 text-white rounded-2xl hover:bg-white/20 transition border border-white/5"
@@ -208,7 +208,7 @@ const Navbar = () => {
                   )}
                 </Link>
 
-                {/* User Dropdown */}
+                {}
                 <div className="relative" ref={menuRef}>
                   <button
                     onClick={() => setMenuOpen(!menuOpen)}

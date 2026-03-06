@@ -33,7 +33,7 @@ const Login = () => {
 
   return (
     <div className="flex min-h-screen bg-white">
-      {/* Left side: Image & Brand (Visible on large screens) */}
+      {}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-brand-900">
         <img 
           src="/login-bg.png" 
@@ -68,10 +68,10 @@ const Login = () => {
         </div>
       </div>
 
-      {/* Right side: Login Form */}
+      {}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 md:p-16 lg:p-24 bg-slate-50">
         <div className="max-w-md w-full">
-          {/* Mobile Logo */}
+          {}
           <div className="lg:hidden flex justify-center mb-12">
             <Link to="/" className="flex items-center gap-3">
               <div className="bg-brand-600 p-2 rounded-xl shadow-lg">

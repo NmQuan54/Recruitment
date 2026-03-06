@@ -60,8 +60,8 @@ public class Job {
 
     private LocalDate deadline;
 
-    @Formula("(SELECT COUNT(*) FROM applications a WHERE a.job_id = id)")
-    private Long applicantCount;
+    
+    
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

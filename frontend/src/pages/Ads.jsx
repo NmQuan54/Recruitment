@@ -86,7 +86,7 @@ const AdsPage = () => {
 
   return (
     <div className="w-full px-4 sm:px-6 lg:px-8 pt-32 pb-16">
-      {/* Hero Header */}
+      {}
       <div className="text-center mb-16">
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-brand-50 rounded-full text-brand-600 font-bold text-xs uppercase tracking-widest mb-6 border border-brand-100">
           <Megaphone size={14} /> Quảng cáo tuyển dụng
@@ -99,7 +99,7 @@ const AdsPage = () => {
         </p>
       </div>
 
-      {/* Pricing Plans */}
+      {}
       <div className="grid md:grid-cols-3 gap-6 mb-20">
         {PLANS.map((plan) => {
           const Icon = plan.icon;
@@ -135,7 +135,7 @@ const AdsPage = () => {
         })}
       </div>
 
-      {/* Job Promotion Manager (for Employers) */}
+      {}
       <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden">
         <div className="p-8 border-b border-slate-50 bg-slate-50/50 flex items-center justify-between">
           <div>

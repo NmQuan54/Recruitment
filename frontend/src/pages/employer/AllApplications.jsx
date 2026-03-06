@@ -48,6 +48,40 @@ const AllApplications = () => {
     }
   };
 
+  const handleDownload = async (url, candidateName) => {
+    if (!url) {
+      toast.error('Không tìm thấy đường dẫn CV');
+      return;
+    }
+    
+    try {
+      toast.loading('Đang chuẩn bị tải xuống...', { id: 'downloading' });
+      
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Network response was not ok');
+      
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      
+      
+      const extension = url.split('.').pop();
+      link.download = `CV_${candidateName.replace(/\s+/g, '_')}.${extension}`;
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+      toast.success('Tải xuống thành công', { id: 'downloading' });
+    } catch (error) {
+      console.error('Download error:', error);
+      toast.error('Lỗi khi tải file. Đang thử mở trong tab mới...', { id: 'downloading' });
+      window.open(url, '_blank');
+    }
+  };
+
   if (loading) return (
     <div className="flex flex-col items-center justify-center min-h-[60vh]">
       <Loader2 className="animate-spin text-brand-600 mb-4" size={40} />
@@ -69,7 +103,7 @@ const AllApplications = () => {
             className="group bg-white rounded-[3rem] border border-slate-50 p-8 shadow-xl hover:shadow-brand-500/5 transition-all duration-500"
           >
             <div className="flex flex-col lg:flex-row gap-8 items-center lg:items-start">
-               {/* Candidate Info */}
+               {}
                <div className="w-20 h-20 bg-brand-50 rounded-full flex items-center justify-center text-brand-600 shrink-0 shadow-inner group-hover:scale-110 transition-transform">
                   <User size={36} />
                </div>
@@ -116,14 +150,12 @@ const AllApplications = () => {
                   )}
 
                   <div className="flex flex-wrap justify-center lg:justify-start gap-4 h-12">
-                     <a 
-                       href={app.resumeUrl} 
-                       target="_blank" 
-                       rel="noreferrer"
+                     <button 
+                       onClick={() => handleDownload(app.resumeUrl, app.candidate?.fullName || 'Ung_Vien')}
                        className="px-6 py-2.5 bg-slate-900 text-white font-bold text-xs uppercase tracking-widest rounded-2xl shadow-xl flex items-center gap-2 hover:bg-brand-600 transition-colors"
                      >
                        <Download size={16} /> Hồ sơ (CV)
-                     </a>
+                     </button>
                      
                      {app.status === 'PENDING' && (
                        <>

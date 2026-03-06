@@ -109,7 +109,7 @@ const CompanyProfile = () => {
 
   return (
     <div className="w-full px-4 pt-32 pb-16">
-      {/* Back button */}
+      {}
       <button
         onClick={() => navigate('/employer/dashboard')}
         className="flex items-center gap-2 text-slate-500 font-bold mb-8 hover:text-brand-600 transition group"
@@ -119,9 +119,9 @@ const CompanyProfile = () => {
       </button>
 
       <div className="bg-white rounded-[3rem] shadow-2xl shadow-brand-100/30 p-8 md:p-12 border border-slate-50">
-        {/* Header */}
+        {}
         <div className="flex flex-col md:flex-row items-start md:items-center gap-8 mb-12 pb-10 border-b border-slate-100">
-          {/* Logo upload */}
+          {}
           <div className="relative group">
             <div className="w-28 h-28 rounded-[2rem] bg-slate-100 border-4 border-white shadow-xl overflow-hidden flex items-center justify-center">
               {form.logoUrl ? (
@@ -165,7 +165,7 @@ const CompanyProfile = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
-          {/* Tên công ty + Ngành */}
+          {}
           <div className="grid md:grid-cols-2 gap-8">
             <div className="space-y-2">
               <label className="text-sm font-bold text-slate-700 uppercase tracking-wider ml-1">
@@ -246,7 +246,7 @@ const CompanyProfile = () => {
             </div>
           </div>
 
-          {/* Địa chỉ */}
+          {}
           <div className="space-y-2">
             <label className="text-sm font-bold text-slate-700 uppercase tracking-wider ml-1">
               Địa chỉ văn phòng
@@ -264,7 +264,7 @@ const CompanyProfile = () => {
             </div>
           </div>
 
-          {/* Mô tả */}
+          {}
           <div className="space-y-2">
             <label className="text-sm font-bold text-slate-700 uppercase tracking-wider ml-1 flex items-center gap-2">
               <FileText size={16} /> Giới thiệu công ty
@@ -279,7 +279,7 @@ const CompanyProfile = () => {
             />
           </div>
 
-          {/* Submit */}
+          {}
           <button
             type="submit"
             disabled={saving}

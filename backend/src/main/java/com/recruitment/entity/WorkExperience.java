@@ -1,6 +1,7 @@
 package com.recruitment.entity;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import java.time.LocalDate;
 
@@ -15,6 +16,7 @@ public class WorkExperience {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "profile_id")
     private CandidateProfile profile;

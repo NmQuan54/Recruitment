@@ -30,7 +30,7 @@ const EmployerDashboard = () => {
         const jobsData = response.data;
         setJobs(jobsData);
         
-        // Calculate basic stats
+        
         const active = jobsData.filter(j => j.status === 'ACTIVE').length;
         const totalApps = jobsData.reduce((acc, current) => acc + (current.applicantCount || 0), 0);
         
@@ -100,7 +100,7 @@ const EmployerDashboard = () => {
         </div>
       </div>
 
-      {/* Stats Grid */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
         <div className="bg-white p-8 rounded-[2rem] border border-slate-100 flex items-center gap-6 shadow-sm">
            <div className="w-16 h-16 bg-brand-50 rounded-2xl flex items-center justify-center text-brand-600">
@@ -131,7 +131,7 @@ const EmployerDashboard = () => {
         </div>
       </div>
 
-      {/* Jobs Table/List */}
+      {}
       <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden">
          <div className="p-8 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
             <h2 className="font-bold text-xl text-slate-900">Danh sách tin đã đăng</h2>

@@ -40,6 +40,16 @@ const ResumeEditor = () => {
   });
 
   useEffect(() => {
+    if (user) {
+      setPersonalInfo({
+        fullName: user.fullName || '',
+        phone: user.phone || '',
+        avatarUrl: user.avatarUrl || ''
+      });
+    }
+  }, [user]);
+
+  useEffect(() => {
     const fetchData = async () => {
       try {
         const [profileRes, resumesRes] = await Promise.all([
@@ -49,13 +59,18 @@ const ResumeEditor = () => {
         
         setProfile({
           ...profileRes.data,
+          title: profileRes.data.title || '',
+          summary: profileRes.data.summary || '',
+          phoneNumber: profileRes.data.phoneNumber || '',
+          address: profileRes.data.address || '',
+          skills: profileRes.data.skills || '',
           experiences: profileRes.data.experiences || [],
           educations: profileRes.data.educations || []
         });
         
-        setResumes(resumesRes.data || []);
+        setResumes(resumesRes.data);
       } catch (error) {
-        toast.error('Không thể tải dữ liệu');
+        console.error('Error fetching data:', error);
       } finally {
         setLoading(false);
       }
@@ -74,9 +89,7 @@ const ResumeEditor = () => {
       const formData = new FormData();
       formData.append('file', resumeFile);
       
-      const uploadRes = await api.post('/upload/resume', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
+      const uploadRes = await api.post('/upload/resume', formData);
 
       await api.post('/resumes', {
         name: resumeName,
@@ -136,13 +149,12 @@ const ResumeEditor = () => {
     try {
       const formData = new FormData();
       formData.append('file', file);
-      const res = await api.post('/upload/logo', formData, { // Assuming employer logo upload endpoint works for avatars too as it's just an image
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
+      const res = await api.post('/upload/logo', formData);
       setPersonalInfo(prev => ({ ...prev, avatarUrl: res.data.url }));
       toast.success('Tải ảnh đại diện thành công!');
     } catch (error) {
-      toast.error('Lỗi khi tải ảnh lên');
+      console.error('Avatar upload error:', error.response?.data || error);
+      toast.error(error.response?.data?.error || 'Lỗi khi tải ảnh lên');
     } finally {
       setUploading(false);
     }
@@ -388,7 +400,7 @@ const ResumeEditor = () => {
               </div>
            </section>
 
-           {/* Education */}
+           {}
            <section>
               <div className="flex items-center justify-between mb-6 px-4">
                  <h2 className="text-2xl font-bold text-slate-900  flex items-center gap-3">
@@ -472,7 +484,7 @@ const ResumeEditor = () => {
               </div>
            </section>
 
-           {/* CV Upload & Management */}
+           {}
            <section>
               <div className="flex items-center justify-between mb-6 px-4">
                  <h2 className="text-2xl font-bold text-slate-900 flex items-center gap-3">
@@ -481,7 +493,7 @@ const ResumeEditor = () => {
               </div>
 
               <div className="grid md:grid-cols-2 gap-6 mb-10">
-                 {/* Upload form */}
+                 {}
                  <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
                     <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest mb-6">Tải CV mới lên</h3>
                     <div className="space-y-4">
@@ -514,7 +526,7 @@ const ResumeEditor = () => {
                     </div>
                  </div>
 
-                 {/* List of resumes */}
+                 {}
                  <div className="bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-sm relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-brand-50 rounded-full blur-3xl -mr-16 -mt-16"></div>
                     <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest mb-6 relative z-10">CV đã lưu ({resumes.length})</h3>

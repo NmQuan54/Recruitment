@@ -26,7 +26,7 @@ public class SeedDataLoader {
                         ApplicationRepository applicationRepository,
                         PasswordEncoder passwordEncoder) {
                 return args -> {
-                        // Seed Admin
+                        
                         if (userRepository.findByEmail("admin").isEmpty()) {
                                 User admin = User.builder()
                                                 .email("admin")
@@ -40,7 +40,7 @@ public class SeedDataLoader {
                                 System.out.println("Admin account created: admin / 0905622341");
                         }
 
-                        // Seed Categories
+                        
                         if (categoryRepository.count() == 0) {
                                 categoryRepository.save(Category.builder().name("IT - Phần mềm").build());
                                 categoryRepository.save(Category.builder().name("Kinh doanh / Bán hàng").build());
@@ -52,7 +52,7 @@ public class SeedDataLoader {
                                 categoryRepository.save(Category.builder().name("Y tế / Dược").build());
                         }
 
-                        // Seed a sample Employer and Company
+                        
                         if (userRepository.findByEmail("employer@test.com").isEmpty()) {
                                 User employerUser = User.builder()
                                                 .email("employer@test.com")
@@ -75,7 +75,7 @@ public class SeedDataLoader {
                                                 .build();
                                 companyRepository.save(company);
 
-                                // Seed some Jobs
+                                
                                 List<Category> allCategories = categoryRepository.findAll();
                                 Category itCategory = allCategories.get(0);
 
@@ -112,7 +112,7 @@ public class SeedDataLoader {
                                 jobRepository.save(job2);
                         }
 
-                        // Seed more Employers
+                        
                         if (userRepository.findByEmail("hr@vng.com.vn").isEmpty()) {
                                 User hrVNG = User.builder()
                                                 .email("hr@vng.com.vn")
@@ -135,7 +135,7 @@ public class SeedDataLoader {
                                 companyRepository.save(vng);
                         }
 
-                        // Seed a sample Candidate
+                        
                         if (userRepository.findByEmail("candidate@test.com").isEmpty()) {
                                 User candidateUser = User.builder()
                                                 .email("candidate@test.com")
@@ -156,7 +156,7 @@ public class SeedDataLoader {
                                                 .build();
                                 candidateProfileRepository.save(profile);
 
-                                // Seed an Application
+                                
                                 Job job = jobRepository.findAll().get(0);
                                 Application application = Application.builder()
                                                 .job(job)

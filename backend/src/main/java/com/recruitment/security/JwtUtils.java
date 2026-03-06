@@ -33,8 +33,8 @@ public class JwtUtils {
     }
 
     private SecretKey key() {
-        // Fix: Use raw UTF-8 bytes because the secret in application.properties is not
-        // Base64 encoded.
+        
+        
         return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     }
 

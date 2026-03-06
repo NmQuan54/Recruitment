@@ -31,7 +31,7 @@ const Register = () => {
 
   return (
     <div className="flex min-h-screen bg-white">
-      {/* Left side: Image & Brand Content (Large screens) */}
+      {}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-brand-900">
         <img 
           src="/register-bg.png" 
@@ -71,10 +71,10 @@ const Register = () => {
         </div>
       </div>
 
-      {/* Right side: Registration Form */}
+      {}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 md:p-16 lg:p-24 bg-slate-50">
         <div className="max-w-xl w-full">
-          {/* Mobile Logo */}
+          {}
           <div className="lg:hidden flex justify-center mb-10">
             <Link to="/" className="flex items-center gap-3">
               <div className="bg-brand-600 p-2 rounded-xl shadow-lg">

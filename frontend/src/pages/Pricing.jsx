@@ -55,7 +55,7 @@ const Pricing = () => {
 
   return (
     <div className="max-w-[90rem] mx-auto px-4 pt-32 pb-20 overflow-hidden">
-      {/* Header */}
+      {}
       <div className="text-center mb-20 max-w-none mx-auto animate-fade-in">
         <h2 className="text-brand-600 font-bold uppercase tracking-[0.3em] text-sm mb-4">Bảng giá dịch vụ</h2>
         <h1 className="text-5xl md:text-6xl font-bold text-slate-900 mb-6  tracking-tight">
@@ -66,9 +66,9 @@ const Pricing = () => {
         </p>
       </div>
 
-      {/* Pricing Grid */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
-        {/* Background purely for aesthetics */}
+        {}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-brand-50/30 blur-[120px] rounded-full -z-10"></div>
         
         {plans.map((plan, index) => (
@@ -127,7 +127,7 @@ const Pricing = () => {
         ))}
       </div>
 
-      {/* FAQ Link */}
+      {}
       <p className="text-center mt-20 text-slate-400 font-bold ">
         Bạn có nhu cầu tuyển dụng lớn hơn? <button className="text-brand-600 underline">Liên hệ với chúng tôi</button> để nhận báo giá tùy chỉnh.
       </p>

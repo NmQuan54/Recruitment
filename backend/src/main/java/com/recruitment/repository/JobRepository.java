@@ -19,9 +19,7 @@ public interface JobRepository extends JpaRepository<Job, Long> {
 
         List<Job> findByCompanyId(Long companyId);
 
-        /**
-         * Tìm kiếm cơ bản (backward compat)
-         */
+        
         @Query("SELECT j FROM Job j WHERE j.status = 'ACTIVE' " +
                         "AND (:keyword IS NULL OR LOWER(j.title) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
                         "AND (:location IS NULL OR LOWER(j.location) LIKE LOWER(CONCAT('%', :location, '%'))) " +
@@ -30,9 +28,7 @@ public interface JobRepository extends JpaRepository<Job, Long> {
                         @Param("location") String location,
                         Pageable pageable);
 
-        /**
-         * Tìm kiếm nâng cao với bộ lọc jobType và khoảng lương
-         */
+        
         @Query("SELECT j FROM Job j LEFT JOIN j.categories c WHERE j.status = 'ACTIVE' " +
                         "AND (:keyword IS NULL OR :keyword = '' OR LOWER(j.title) LIKE LOWER(CONCAT('%', :keyword, '%')) "
                         +

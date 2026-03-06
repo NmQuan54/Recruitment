@@ -44,7 +44,7 @@ const Chat = () => {
     }
   };
 
-  // Fetch unread counts
+  
   const fetchUnreadCounts = async () => {
     try {
       const res = await api.get('/chat/rooms/unread-counts');
@@ -58,21 +58,21 @@ const Chat = () => {
       await fetchUnreadCounts();
       setLoading(false);
 
-      // If candidateId param — employer clicked message icon
+      
       const candidateIdParam = searchParams.get('candidateId');
       if (candidateIdParam && user?.role === 'EMPLOYER' && !initializedRef.current) {
         initializedRef.current = true;
-        // Try to find existing room first
+        
         const existing = fetchedRooms.find(
           r => r.candidate?.id === parseInt(candidateIdParam)
         );
         if (existing) {
           handleOpenRoom(existing);
         } else {
-          // Create room with a greeting message — need employer's first job id
-          // We'll just navigate to messages with a "new chat" prompt
+          
+          
           try {
-            // Get employer's first active job
+            
             const jobsRes = await api.get('/employer/jobs');
             const jobs = jobsRes.data;
             if (jobs && jobs.length > 0) {
@@ -106,7 +106,7 @@ const Chat = () => {
         try {
           const res = await api.get(`/chat/rooms/${activeRoom.id}/messages`);
           const newMessages = res.data;
-          // Only scroll if new messages arrived
+          
           if (newMessages.length > lastMessageCountRef.current) {
             setMessages(newMessages);
             lastMessageCountRef.current = newMessages.length;
@@ -117,7 +117,7 @@ const Chat = () => {
         } catch (_) {}
       };
       fetchMessages();
-      // Mark as read when opening
+      
       api.post(`/chat/rooms/${activeRoom.id}/read`).then(() => {
         setUnreadCounts(prev => ({ ...prev, [activeRoom.id]: 0 }));
       }).catch(() => {});
@@ -133,7 +133,7 @@ const Chat = () => {
           } else {
             setMessages(newMessages);
           }
-          // Mark as read
+          
           api.post(`/chat/rooms/${activeRoom.id}/read`).then(() => {
             setUnreadCounts(prev => ({ ...prev, [activeRoom.id]: 0 }));
           }).catch(() => {});
@@ -145,8 +145,8 @@ const Chat = () => {
 
   const handleOpenRoom = (room) => {
     setActiveRoom(room);
-    lastMessageCountRef.current = 0; // Reset counter when switching rooms
-    // Mark as read immediately
+    lastMessageCountRef.current = 0; 
+    
     api.post(`/chat/rooms/${room.id}/read`).then(() => {
       setUnreadCounts(prev => ({ ...prev, [room.id]: 0 }));
     }).catch(() => {});
@@ -183,7 +183,7 @@ const Chat = () => {
     return user.role === 'EMPLOYER' ? room.candidate : room.employer;
   };
 
-  // Total unread across all rooms
+  
   const totalUnread = Object.values(unreadCounts).reduce((sum, c) => sum + (c || 0), 0);
 
   if (loading) return (
@@ -196,7 +196,7 @@ const Chat = () => {
     <div className="w-full px-4 pt-32 pb-10 h-[calc(100vh-80px)]">
       <div className="bg-white rounded-[2.5rem] shadow-2xl shadow-brand-100/50 border border-slate-100 overflow-hidden flex h-full">
         
-        {/* Sidebar: Rooms */}
+        {}
         <div className={`w-full md:w-80 lg:w-96 border-r border-slate-100 flex flex-col ${activeRoom ? 'hidden md:flex' : 'flex'}`}>
           <div className="p-6 border-b border-slate-50">
             <h2 className="text-2xl font-bold text-slate-900  flex items-center gap-3">
@@ -230,7 +230,7 @@ const Chat = () => {
                     `}>
                       {other?.fullName?.charAt(0) || '?'}
                     </div>
-                    {/* Unread badge */}
+                    {}
                     {unread > 0 && !isActive && (
                       <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-lg shadow-red-200">
                         {unread > 9 ? '9+' : unread}
@@ -263,11 +263,11 @@ const Chat = () => {
           </div>
         </div>
 
-        {/* Main Content: Messages */}
+        {}
         <div className={`flex-1 flex flex-col ${!activeRoom ? 'hidden md:flex items-center justify-center bg-slate-50/30' : 'flex'}`}>
           {activeRoom ? (
             <>
-              {/* Chat Header */}
+              {}
               <div className="p-6 border-b border-slate-100 flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <button onClick={() => setActiveRoom(null)} className="md:hidden text-slate-400">
@@ -286,7 +286,7 @@ const Chat = () => {
                 <button className="text-slate-300 hover:text-slate-600"><MoreVertical /></button>
               </div>
 
-              {/* Messages Area */}
+              {}
               <div 
                 ref={containerRef}
                 className="flex-1 overflow-y-auto p-6 space-y-4 bg-slate-50/20"
@@ -319,7 +319,7 @@ const Chat = () => {
                 <div ref={messagesEndRef} />
               </div>
 
-              {/* Input Area */}
+              {}
               <div className="p-6">
                 <form onSubmit={handleSendMessage} className="relative">
                   <input 

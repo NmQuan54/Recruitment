@@ -2,12 +2,10 @@ import axios from 'axios';
 
 const api = axios.create({
   baseURL: '/api',
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  headers: {},
 });
 
-// Thêm token vào header nếu có
+
 api.interceptors.request.use((config) => {
   const user = JSON.parse(localStorage.getItem('user'));
   if (user && user.token) {

@@ -19,18 +19,14 @@ public class SavedJobController {
     @Autowired
     private SavedJobService savedJobService;
 
-    /**
-     * Lấy danh sách công việc đã lưu
-     */
+    
     @PreAuthorize("hasRole('CANDIDATE')")
     @GetMapping
     public ResponseEntity<List<Job>> getSavedJobs(Authentication authentication) {
         return ResponseEntity.ok(savedJobService.getSavedJobs(authentication.getName()));
     }
 
-    /**
-     * Lưu công việc yêu thích
-     */
+    
     @PreAuthorize("hasRole('CANDIDATE')")
     @PostMapping("/{jobId}")
     public ResponseEntity<Map<String, String>> saveJob(
@@ -40,9 +36,7 @@ public class SavedJobController {
         return ResponseEntity.ok(Map.of("status", "saved"));
     }
 
-    /**
-     * Bỏ lưu công việc
-     */
+    
     @PreAuthorize("hasRole('CANDIDATE')")
     @DeleteMapping("/{jobId}")
     public ResponseEntity<Map<String, String>> unsaveJob(
@@ -52,9 +46,7 @@ public class SavedJobController {
         return ResponseEntity.ok(Map.of("status", "unsaved"));
     }
 
-    /**
-     * Kiểm tra xem đã lưu chưa (dùng khi load JobDetail)
-     */
+    
     @PreAuthorize("hasRole('CANDIDATE')")
     @GetMapping("/{jobId}/status")
     public ResponseEntity<Map<String, Boolean>> checkSaved(

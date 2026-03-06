@@ -44,7 +44,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             } else if (jwt != null) {
                 System.out.println("JWT found but validation failed: " + jwt.substring(0, 10) + "...");
             } else {
-                // System.out.println("No JWT found in request to: " + request.getRequestURI());
+                
             }
         } catch (Exception e) {
             System.err.println("Cannot set user authentication: " + e.getMessage());

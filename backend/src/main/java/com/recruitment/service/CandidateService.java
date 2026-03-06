@@ -8,7 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,10 +23,22 @@ public class CandidateService {
     private UserRepository userRepository;
 
     public CandidateProfile getProfile(String userEmail) {
+        System.out.println("Fetching profile for: " + userEmail);
         User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        return profileRepository.findByUserId(user.getId())
-                .orElseThrow(() -> new RuntimeException("Candidate profile not found"));
+                .orElseThrow(() -> new RuntimeException("User not found: " + userEmail));
+
+        Optional<CandidateProfile> profileOpt = profileRepository.findByUserId(user.getId());
+        if (profileOpt.isPresent()) {
+            return profileOpt.get();
+        }
+
+        System.out.println("No profile found, creating new one for user ID: " + user.getId());
+        CandidateProfile newProfile = new CandidateProfile();
+        newProfile.setUser(user);
+        newProfile.setTitle("New Candidate");
+        newProfile.setExperiences(new ArrayList<>());
+        newProfile.setEducations(new ArrayList<>());
+        return profileRepository.save(newProfile);
     }
 
     public List<CandidateProfile> getAllProfiles() {
@@ -61,18 +75,18 @@ public class CandidateService {
             existing.setExperience(updatedProfile.getExperience());
         if (updatedProfile.getEducation() != null)
             existing.setEducation(updatedProfile.getEducation());
+        if (updatedProfile.getSkills() != null)
+            existing.setSkills(updatedProfile.getSkills());
 
-        // Xử lý Experience và Education
-        // Legacy list handling (optional, keep for compatibility if needed, but simple
-        // string is primary now)
-        if (updatedProfile.getExperiences() != null && !updatedProfile.getExperiences().isEmpty()) {
+        
+        if (updatedProfile.getExperiences() != null) {
             existing.getExperiences().clear();
             updatedProfile.getExperiences().forEach(exp -> {
                 exp.setProfile(existing);
                 existing.getExperiences().add(exp);
             });
         }
-        if (updatedProfile.getEducations() != null && !updatedProfile.getEducations().isEmpty()) {
+        if (updatedProfile.getEducations() != null) {
             existing.getEducations().clear();
             updatedProfile.getEducations().forEach(edu -> {
                 edu.setProfile(existing);

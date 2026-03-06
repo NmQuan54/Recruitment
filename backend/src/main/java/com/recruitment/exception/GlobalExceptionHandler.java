@@ -13,7 +13,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleAllExceptions(Exception ex) {
-        ex.printStackTrace(); // Log stack trace to console
+        ex.printStackTrace(); 
 
         Map<String, Object> body = new HashMap<>();
         body.put("message", ex.getMessage());

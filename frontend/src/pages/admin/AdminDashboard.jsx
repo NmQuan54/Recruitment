@@ -27,10 +27,10 @@ const AdminDashboard = () => {
       try {
         const [statsRes] = await Promise.all([
           api.get('/admin/stats'),
-          // api.get('/admin/recent-activities') // Optional
+          
         ]);
         setStats(statsRes.data);
-        // Mock recent activities for premium feel
+        
         setRecentActivities([
           { id: 1, type: 'USER', text: 'Người dùng mới đăng ký: Nguyễn Văn A', time: '2 phút trước' },
           { id: 2, type: 'JOB', text: 'Công ty TechGlobal đăng tin tuyển dụng mới', time: '15 phút trước' },
@@ -62,7 +62,7 @@ const AdminDashboard = () => {
 
   return (
     <div className="w-full px-4 pt-32 pb-20">
-      {/* Header */}
+      {}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
         <div>
            <div className="flex items-center gap-3 mb-2">
@@ -81,7 +81,7 @@ const AdminDashboard = () => {
       </div>
 
       <div className="grid lg:grid-cols-3 gap-10">
-         {/* Main Quick Access Grid */}
+         {}
          <div className="lg:col-span-2 grid sm:grid-cols-2 gap-6">
             {menuItems.map((item, i) => (
               <Link 
@@ -104,7 +104,7 @@ const AdminDashboard = () => {
                     </h3>
                     <p className="text-xs font-bold text-slate-400  line-clamp-1">{item.desc}</p>
                  </div>
-                 {/* Decorative background element */}
+                 {}
                  <div className={`absolute -right-8 -bottom-8 w-32 h-32 ${item.bg} rounded-full opacity-0 group-hover:opacity-100 transition-opacity scale-150`}></div>
               </Link>
             ))}

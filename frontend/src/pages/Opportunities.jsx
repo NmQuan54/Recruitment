@@ -116,7 +116,7 @@ const Opportunities = () => {
       const res = await api.get('/jobs', { params });
       const data = res.data?.content || res.data || [];
       const all = Array.isArray(data) ? data : [];
-      // Filter by jobType on client side if activeType is set
+      
       const filtered = activeType ? all.filter(j => j.jobType === activeType) : all;
       setJobs(filtered);
     } catch (err) {
@@ -229,7 +229,7 @@ const Opportunities = () => {
           </div>
         ) : (
           <>
-            {/* Promoted Jobs Section */}
+            {}
             {promoted.length > 0 && (
               <section className="mb-14">
                 <div className="flex items-center gap-3 mb-7">
@@ -249,7 +249,7 @@ const Opportunities = () => {
               </section>
             )}
 
-            {/* Regular Jobs Section */}
+            {}
             <section>
               <div className="flex items-center justify-between mb-7">
                 <div className="flex items-center gap-3">

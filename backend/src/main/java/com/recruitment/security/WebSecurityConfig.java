@@ -76,7 +76,7 @@ public class WebSecurityConfig {
                         .permitAll()
                         .requestMatchers("/api/public/**").permitAll()
                         .requestMatchers("/uploads/**").permitAll()
-                        // Allow OPTIONS for all to prevent preflight 403
+                        
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/employer/**").hasAnyRole("EMPLOYER", "ADMIN")
                         .requestMatchers("/api/candidate/**").hasAnyRole("CANDIDATE", "EMPLOYER", "ADMIN")

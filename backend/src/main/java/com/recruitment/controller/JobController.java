@@ -22,12 +22,9 @@ public class JobController {
     @Autowired
     private JobService jobService;
 
-    // ===================== PUBLIC ENDPOINTS =====================
+    
 
-    /**
-     * Tìm kiếm và lọc công việc nâng cao
-     * Params: keyword, location, jobType, salaryMin, salaryMax, page, size, sort
-     */
+    
     @GetMapping("/jobs")
     public ResponseEntity<Page<Job>> searchJobs(
             @RequestParam(required = false) String keyword,
@@ -50,7 +47,7 @@ public class JobController {
         return ResponseEntity.ok(jobService.getJobById(id));
     }
 
-    // ===================== EMPLOYER ENDPOINTS =====================
+    
 
     @PreAuthorize("hasRole('EMPLOYER')")
     @PostMapping("/employer/jobs")
@@ -75,9 +72,7 @@ public class JobController {
         return ResponseEntity.ok(jobService.getJobsByEmployer(authentication.getName()));
     }
 
-    /**
-     * Cập nhật nội dung tin tuyển dụng
-     */
+    
     @PreAuthorize("hasRole('EMPLOYER')")
     @PutMapping("/employer/jobs/{id}")
     public ResponseEntity<Job> updateJob(
@@ -121,7 +116,7 @@ public class JobController {
         return ResponseEntity.ok().build();
     }
 
-    // ===================== CANDIDATE ENDPOINTS =====================
+    
 
     @PreAuthorize("hasRole('CANDIDATE')")
     @GetMapping("/candidate/jobs/recommendations")

@@ -63,7 +63,7 @@ const CompanyDetail = () => {
         <ChevronLeft size={20} className="group-hover:-translate-x-1 transition" /> Quay lại danh sách
       </button>
 
-      {/* Hero Header */}
+      {}
       <div className="relative mb-20">
          <div className="absolute inset-0 bg-brand-50 rounded-[4rem] group-hover:bg-brand-100 transition-colors duration-500 opacity-20 -z-10 blur-3xl"></div>
          <div className="glass-effect rounded-[3.5rem] shadow-2xl p-10 md:p-16 border border-white/50 flex flex-col md:flex-row gap-12 items-center md:items-start text-center md:text-left">
@@ -96,7 +96,7 @@ const CompanyDetail = () => {
       </div>
 
       <div className="grid lg:grid-cols-3 gap-16">
-         {/* About Section */}
+         {}
          <div className="lg:col-span-2 space-y-16">
             <section>
                <h3 className="text-2xl font-bold text-slate-900 mb-8 flex items-center gap-4">
@@ -110,7 +110,7 @@ const CompanyDetail = () => {
                </div>
             </section>
 
-            {/* Jobs Section */}
+            {}
             <section>
                <h3 className="text-2xl font-bold text-slate-900 mb-8 flex items-center gap-4">
                  <div className="w-10 h-10 bg-brand-50 rounded-xl flex items-center justify-center">
@@ -146,7 +146,7 @@ const CompanyDetail = () => {
             </section>
          </div>
 
-         {/* Sidebar Stats */}
+         {}
           <div className="space-y-10">
              <div className="bg-white p-12 rounded-[3.5rem] border border-slate-100 shadow-xl relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-brand-50/50 rounded-full -mr-16 -mt-16"></div>

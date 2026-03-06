@@ -35,6 +35,9 @@ const JobDetail = () => {
   const [resumes, setResumes] = useState([]);
   const [selectedResumeUrl, setSelectedResumeUrl] = useState('');
   const [loadingResumes, setLoadingResumes] = useState(false);
+  const [applyType, setApplyType] = useState('existing'); 
+  const [resumeFile, setResumeFile] = useState(null);
+  const [uploadingResume, setUploadingResume] = useState(false);
 
   useEffect(() => {
     if (showModal && user?.role === 'CANDIDATE') {
@@ -120,16 +123,56 @@ const JobDetail = () => {
       return;
     }
     
+    let finalResumeUrl = selectedResumeUrl;
+
     setApplying(true);
     try {
-      await api.post(`/candidate/jobs/${id}/apply`, { 
+      
+      if (applyType === 'upload') {
+        if (!resumeFile) {
+          toast.error('Vui lòng chọn file CV để tải lên');
+          setApplying(false);
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', resumeFile);
+        
+        try {
+          const uploadRes = await api.post('/upload/resume', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+          });
+          finalResumeUrl = uploadRes.data.url;
+          toast.success('CV đã được tải lên hệ thống');
+        } catch (uploadError) {
+          toast.error(uploadError.response?.data?.error || 'Lỗi khi tải CV lên server');
+          setApplying(false);
+          return;
+        }
+      }
+
+      if (!finalResumeUrl) {
+        toast.error('Vui lòng chọn hoặc tải lên CV của bạn');
+        setApplying(false);
+        return;
+      }
+
+      const applyData = { 
         coverLetter,
-        resumeUrl: selectedResumeUrl 
-      });
+        resumeUrl: finalResumeUrl 
+      };
+      
+      console.log('Sending apply request:', applyData);
+      const res = await api.post(`/candidate/jobs/${id}/apply`, applyData);
+      
       toast.success('Ứng tuyển thành công!');
       setShowModal(false);
+      setCoverLetter('');
+      setResumeFile(null);
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Có lỗi xảy ra');
+      console.error('Apply error:', error.response?.data);
+      const errorMsg = error.response?.data?.message || 'Có lỗi xảy ra khi nộp đơn';
+      toast.error(errorMsg);
     } finally {
       setApplying(false);
     }
@@ -152,7 +195,7 @@ const JobDetail = () => {
       </button>
 
       <div className="glass-effect rounded-[3.5rem] shadow-2xl shadow-brand-100/20 border border-white/50 overflow-hidden">
-         {/* Top Header */}
+         {}
          <div className="p-8 md:p-16 bg-white/50 border-b border-slate-100/50">
             <div className="flex flex-col lg:flex-row gap-10 items-start lg:items-center">
                <div className="w-32 h-32 bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-slate-100 flex items-center justify-center p-6 shrink-0   transition-transform duration-500">
@@ -211,7 +254,7 @@ const JobDetail = () => {
             </div>
          </div>
 
-         {/* Content Sections */}
+         {}
          <div className="p-8 md:p-16 grid lg:grid-cols-3 gap-16">
             <div className="lg:col-span-2 space-y-16">
                <section>
@@ -265,7 +308,7 @@ const JobDetail = () => {
          </div>
       </div>
 
-      {/* Apply Modal */}
+      {}
       {showModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md">
            <div className="bg-white w-full max-w-xl rounded-[3rem] p-12 shadow-3xl animate-fade-in relative">
@@ -295,18 +338,58 @@ const JobDetail = () => {
                     ></textarea>
                  </div>
 
-                 <div className="space-y-3">
-                    <label className="text-[10px] font-bold text-slate-400 ml-4 uppercase tracking-[0.2em]">Chọn CV ứng tuyển</label>
-                    <select 
-                      className="w-full p-6 bg-slate-50 border-none rounded-[2rem] font-bold text-slate-900 focus:ring-2 focus:ring-brand-500/20 transition appearance-none"
-                      value={selectedResumeUrl}
-                      onChange={(e) => setSelectedResumeUrl(e.target.value)}
-                    >
-                      {resumes.map(r => (
-                        <option key={r.id} value={r.resumeUrl}>{r.name}</option>
-                      ))}
-                      {resumes.length === 0 && <option value="">Chưa có CV nào - Vui lòng tạo tại Hồ sơ</option>}
-                    </select>
+                 <div className="space-y-4">
+                    <div className="flex gap-4 mb-2 p-1 bg-slate-100 rounded-2xl w-fit mx-auto">
+                       <button 
+                         type="button"
+                         onClick={() => setApplyType('existing')}
+                         className={`px-6 py-2 rounded-xl text-xs font-bold transition-all ${applyType === 'existing' ? 'bg-white text-brand-600 shadow-sm' : 'text-slate-400'}`}
+                       >
+                         CV đã có sẵn
+                       </button>
+                       <button 
+                         type="button"
+                         onClick={() => setApplyType('upload')}
+                         className={`px-6 py-2 rounded-xl text-xs font-bold transition-all ${applyType === 'upload' ? 'bg-white text-brand-600 shadow-sm' : 'text-slate-400'}`}
+                       >
+                         Tải CV mới lên
+                       </button>
+                    </div>
+
+                    {applyType === 'existing' ? (
+                      <div className="space-y-3">
+                        <label className="text-[10px] font-bold text-slate-400 ml-4 uppercase tracking-[0.2em]">Chọn CV trong hồ sơ</label>
+                        <select 
+                          className="w-full p-6 bg-slate-50 border-none rounded-[2rem] font-bold text-slate-900 focus:ring-2 focus:ring-brand-500/20 transition appearance-none"
+                          value={selectedResumeUrl}
+                          onChange={(e) => setSelectedResumeUrl(e.target.value)}
+                        >
+                          {resumes.map(r => (
+                            <option key={r.id} value={r.resumeUrl}>{r.name}</option>
+                          ))}
+                          {resumes.length === 0 && <option value="">Bạn chưa có CV nào trong hồ sơ</option>}
+                        </select>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                         <label className="text-[10px] font-bold text-slate-400 ml-4 uppercase tracking-[0.2em]">Upload file CV (PDF/Ảnh)</label>
+                         <div className="relative group">
+                            <input 
+                              type="file" 
+                              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
+                              accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                              onChange={(e) => setResumeFile(e.target.files[0])}
+                            />
+                            <div className="w-full p-8 bg-slate-50 border-2 border-dashed border-slate-200 rounded-[2rem] text-center group-hover:bg-brand-50/30 group-hover:border-brand-200 transition">
+                               <FileText size={32} className="mx-auto mb-3 text-slate-300 group-hover:text-brand-400 transition" />
+                               <p className="font-bold text-slate-500 text-sm">
+                                 {resumeFile ? resumeFile.name : 'Nhấn để chọn file CV của bạn'}
+                               </p>
+                               <p className="text-[10px] text-slate-300 mt-2 font-bold uppercase tracking-widest">Tối đa 5MB • PDF, JPG, PNG</p>
+                            </div>
+                         </div>
+                      </div>
+                    )}
                  </div>
 
                  <div className="bg-brand-50/50 border border-brand-100 p-6 rounded-3xl flex items-start gap-4">

@@ -22,14 +22,14 @@ const SavedJobs = () => {
     fetchSaved();
   }, []);
 
-  // Remove from list when unbookmarked
+  
   const handleUnsave = (jobId) => {
     setJobs(prev => prev.filter(j => j.id !== jobId));
   };
 
   return (
     <div className="w-full px-4 pt-32 pb-16">
-      {/* Header */}
+      {}
       <div className="mb-10">
         <div className="flex items-center gap-4 mb-2">
           <div className="w-14 h-14 bg-brand-50 rounded-[1.25rem] flex items-center justify-center">
@@ -76,7 +76,7 @@ const SavedJobs = () => {
   );
 };
 
-// Wrapper để theo dõi trạng thái unsave từ JobCard
+
 const SavedJobCardWrapper = ({ job, onUnsave }) => {
   const [visible, setVisible] = useState(true);
 

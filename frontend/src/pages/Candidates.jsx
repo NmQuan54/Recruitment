@@ -113,7 +113,7 @@ const CandidateCard = ({ candidate, idx, onMessage }) => {
           </motion.div>
         )}
 
-        {/* Actions */}
+        {}
         <div className="flex items-center gap-3 mt-4 pt-4 border-t border-slate-100">
           <button
             onClick={() => setExpanded(!expanded)}
@@ -232,7 +232,7 @@ const Candidates = () => {
         )}
       </div>
 
-      {/* Content */}
+      {}
       {loading ? (
         <div className="flex flex-col items-center justify-center py-32 glass-effect rounded-[3.5rem] border border-white/50">
           <div className="w-20 h-20 border-4 border-brand-100 border-t-brand-600 rounded-full animate-spin mb-6" />

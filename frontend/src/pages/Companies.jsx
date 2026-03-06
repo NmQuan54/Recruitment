@@ -45,13 +45,13 @@ const Companies = () => {
 
   return (
     <div className="w-full px-4 pt-32 pb-20">
-      {/* Header Section */}
+      {}
       <div className="text-center mb-16 max-w-none mx-auto animate-fade-in">
         <h1 className="text-5xl font-bold text-slate-900 mb-6  tracking-tight">Cộng đồng doanh nghiệp</h1>
         <p className="text-slate-500 font-bold text-lg ">Khám phá và kết nối với những công ty hàng đầu đang tìm kiếm tài năng.</p>
       </div>
 
-      {/* Search Bar */}
+      {}
       <div className="max-w-xl mx-auto mb-16 relative group">
         <div className="absolute inset-0 bg-brand-500/10 blur-[40px] rounded-full group-hover:bg-brand-500/20 transition-all duration-700 opacity-0 group-hover:opacity-100"></div>
         <div className="relative flex items-center bg-white rounded-[2rem] border border-slate-100 shadow-xl overflow-hidden p-2">
@@ -66,7 +66,7 @@ const Companies = () => {
         </div>
       </div>
 
-      {/* Companies Grid */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {filteredCompanies.map((company, index) => (
           <motion.div
@@ -76,7 +76,7 @@ const Companies = () => {
             transition={{ delay: index * 0.05 }}
             className="group relative bg-white rounded-[3rem] border border-slate-50 p-8 shadow-2xl shadow-brand-100/20 hover:shadow-brand-500/10 transition-all duration-500 hover:-translate-y-2 overflow-hidden"
           >
-            {/* Background elements */}
+            {}
             <div className="absolute top-0 right-0 w-32 h-32 bg-brand-50 rounded-full -mr-16 -mt-16 group-hover:bg-brand-100 transition-colors duration-500 opacity-20"></div>
             
             <div className="relative z-10">
