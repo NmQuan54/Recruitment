@@ -10,6 +10,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.List;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -25,9 +27,17 @@ public class ResumeController {
 
     @PreAuthorize("hasRole('CANDIDATE')")
     @GetMapping
-    public ResponseEntity<List<Resume>> getMyResumes(Authentication authentication) {
-        User user = userRepository.findByEmail(authentication.getName()).orElseThrow();
-        return ResponseEntity.ok(resumeRepository.findByUserId(user.getId()));
+    public ResponseEntity<?> getMyResumes(Authentication authentication) {
+        try {
+            User user = userRepository.findByEmail(authentication.getName()).orElseThrow();
+            return ResponseEntity.ok(resumeRepository.findByUserId(user.getId()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw));
+            return ResponseEntity.status(500)
+                    .body("Error fetching resumes: " + e.getMessage() + "\nDetails: " + sw.toString());
+        }
     }
 
     @PreAuthorize("hasRole('CANDIDATE')")

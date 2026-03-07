@@ -100,7 +100,7 @@ const CandidateCard = ({ candidate, idx, onMessage }) => {
                 </div>
               </div>
             )}
-            {candidate.resumeUrl && (
+            {candidate.resumeUrl && candidate.resumeUrl !== 'ONLINE_PROFILE' && (
               <a
                 href={candidate.resumeUrl}
                 target="_blank"

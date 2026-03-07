@@ -17,9 +17,8 @@ public interface JobRepository extends JpaRepository<Job, Long> {
 
         Page<Job> findByStatus(JobStatus status, Pageable pageable);
 
-        List<Job> findByCompanyId(Long companyId);
+        List<Job> findByCompanyIdOrderByCreatedAtDesc(Long companyId);
 
-        
         @Query("SELECT j FROM Job j WHERE j.status = 'ACTIVE' " +
                         "AND (:keyword IS NULL OR LOWER(j.title) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
                         "AND (:location IS NULL OR LOWER(j.location) LIKE LOWER(CONCAT('%', :location, '%'))) " +
@@ -28,7 +27,6 @@ public interface JobRepository extends JpaRepository<Job, Long> {
                         @Param("location") String location,
                         Pageable pageable);
 
-        
         @Query("SELECT j FROM Job j LEFT JOIN j.categories c WHERE j.status = 'ACTIVE' " +
                         "AND (:keyword IS NULL OR :keyword = '' OR LOWER(j.title) LIKE LOWER(CONCAT('%', :keyword, '%')) "
                         +
@@ -51,10 +49,16 @@ public interface JobRepository extends JpaRepository<Job, Long> {
                         @Param("companyId") Long companyId,
                         Pageable pageable);
 
-        @Query("SELECT j FROM Job j WHERE j.status = 'ACTIVE' " +
+        @Query("SELECT DISTINCT j FROM Job j LEFT JOIN j.categories c WHERE j.status = 'ACTIVE' " +
                         "AND (LOWER(j.title) LIKE LOWER(CONCAT('%', :skill, '%')) " +
                         "OR LOWER(j.description) LIKE LOWER(CONCAT('%', :skill, '%')) " +
-                        "OR LOWER(j.requirements) LIKE LOWER(CONCAT('%', :skill, '%'))) " +
+                        "OR LOWER(j.requirements) LIKE LOWER(CONCAT('%', :skill, '%')) " +
+                        "OR LOWER(c.name) LIKE LOWER(CONCAT('%', :skill, '%'))) " +
                         "ORDER BY j.isPromoted DESC, j.createdAt DESC")
         List<Job> findRecommendations(@Param("skill") String skill);
+
+        long countByCompanyUserIdAndCreatedAtAfter(Long userId, java.time.LocalDateTime since);
+
+        @Query("SELECT DISTINCT j FROM Job j JOIN j.categories c WHERE j.status = 'ACTIVE' AND c.id IN :categoryIds")
+        List<Job> findByCategories(@Param("categoryIds") java.util.Set<Long> categoryIds);
 }

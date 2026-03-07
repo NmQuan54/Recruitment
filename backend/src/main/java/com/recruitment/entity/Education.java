@@ -3,7 +3,6 @@ package com.recruitment.entity;
 import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
-import java.time.LocalDate;
 
 @Entity
 @Table(name = "educations")
@@ -24,9 +23,11 @@ public class Education {
     private String institution;
     private String degree;
     private String major;
-    private LocalDate startDate;
-    private LocalDate endDate;
+    private String startDate;
+    private String endDate;
 
     @Column(columnDefinition = "TEXT")
     private String description;
+
+    private Double gpa;
 }

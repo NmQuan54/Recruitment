@@ -29,6 +29,9 @@ public class ApplicationService {
     @Autowired
     private NotificationService notificationService;
 
+    @Autowired
+    private com.recruitment.repository.CandidateProfileRepository candidateProfileRepository;
+
     @Transactional
     public Application applyForJob(String candidateEmail, Long jobId, String coverLetter, String resumeUrl) {
         System.out.println("Apply for job request: candidate=" + candidateEmail + ", jobId=" + jobId
@@ -48,7 +51,6 @@ public class ApplicationService {
                 throw new RuntimeException("Không thể ứng tuyển vào công việc không còn hoạt động");
             }
 
-            
             LocalDateTime startOfToday = LocalDate.now().atStartOfDay();
             long applicationsToday = applicationRepository.countByJobIdAndCandidateIdAndAppliedAtAfter(jobId,
                     candidate.getId(), startOfToday);
@@ -66,13 +68,11 @@ public class ApplicationService {
                     .status(ApplicationStatus.PENDING)
                     .build();
 
-            
             System.out.println("Step 4: Saving application entity...");
             Application saved = applicationRepository.save(application);
             applicationRepository.flush();
             System.out.println("Step 5: Application saved and flushed. ID: " + saved.getId());
 
-            
             String jTitle = (job.getTitle() != null) ? job.getTitle() : "vị trí mới";
             String cName = "Công ty";
             if (job.getCompany() != null && job.getCompany().getName() != null) {
@@ -91,7 +91,7 @@ public class ApplicationService {
                 System.out.println("Notification created successfully");
             } catch (Exception ne) {
                 System.err.println("Warning: Notification failed (but application was saved): " + ne.getMessage());
-                
+
             }
 
             return saved;
@@ -108,11 +108,49 @@ public class ApplicationService {
     public List<Application> getCandidateApplications(String candidateEmail) {
         User candidate = userRepository.findByEmail(candidateEmail)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy ứng viên"));
-        return applicationRepository.findByCandidateId(candidate.getId());
+        return applicationRepository.findByCandidateIdOrderByAppliedAtDesc(candidate.getId());
     }
 
     public List<Application> getAllEmployerApplications(String employerEmail) {
         return applicationRepository.findAllByEmployerEmail(employerEmail);
+    }
+
+    public Map<String, Object> getEmployerAnalytics(String employerEmail) {
+        List<Application> apps = applicationRepository.findAllByEmployerEmail(employerEmail);
+
+        // 1. Applications by Day of Week (Last 7 Days conceptually, but let's aggregate
+        // by Day Name for simplicity)
+        Map<String, Long> appsByDay = new java.util.LinkedHashMap<>();
+        String[] days = { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
+        for (String day : days)
+            appsByDay.put(day, 0L);
+
+        for (Application app : apps) {
+            String dayName = app.getAppliedAt().getDayOfWeek().getDisplayName(java.time.format.TextStyle.FULL,
+                    java.util.Locale.ENGLISH);
+            appsByDay.put(dayName, appsByDay.getOrDefault(dayName, 0L) + 1);
+        }
+
+        // 2. Education Degrees
+        Map<String, Long> educationStats = new java.util.HashMap<>();
+        for (Application app : apps) {
+            CandidateProfile profile = candidateProfileRepository.findByUserId(app.getCandidate().getId()).orElse(null);
+            if (profile != null && profile.getEducations() != null && !profile.getEducations().isEmpty()) {
+                for (Education edu : profile.getEducations()) {
+                    String degree = edu.getDegree() != null ? edu.getDegree().trim() : "Khác";
+                    if (degree.isEmpty())
+                        degree = "Khác";
+                    educationStats.put(degree, educationStats.getOrDefault(degree, 0L) + 1);
+                }
+            } else {
+                educationStats.put("Chưa cập nhật", educationStats.getOrDefault("Chưa cập nhật", 0L) + 1);
+            }
+        }
+
+        Map<String, Object> result = new java.util.HashMap<>();
+        result.put("applicationsByDay", appsByDay);
+        result.put("educationStats", educationStats);
+        return result;
     }
 
     public List<Application> getJobApplications(String employerEmail, Long jobId) {
@@ -123,7 +161,7 @@ public class ApplicationService {
             throw new RuntimeException("Bạn không có quyền xem hồ sơ của công việc này");
         }
 
-        return applicationRepository.findByJobId(jobId);
+        return applicationRepository.findByJobIdOrderByAppliedAtDesc(jobId);
     }
 
     @Transactional
@@ -143,7 +181,6 @@ public class ApplicationService {
         }
         Application saved = applicationRepository.save(application);
 
-        
         if (!oldStatus.equals(status)) {
             String msg = buildStatusChangeMessage(status, application.getJob());
             notificationService.createNotification(
@@ -172,7 +209,6 @@ public class ApplicationService {
         application.setInterviewNotes(notes);
         Application saved = applicationRepository.save(application);
 
-        
         notificationService.createNotification(
                 application.getCandidate(),
                 "INTERVIEW_SCHEDULED",

@@ -24,7 +24,6 @@ public class ApplicationController {
     @Autowired
     private ApplicationService applicationService;
 
-    
     @PreAuthorize("hasRole('CANDIDATE')")
     @PostMapping("/candidate/jobs/{jobId}/apply")
     public ResponseEntity<?> applyForJob(
@@ -69,14 +68,12 @@ public class ApplicationController {
         }
     }
 
-    
     @PreAuthorize("hasRole('CANDIDATE')")
     @GetMapping("/candidate/applications")
     public ResponseEntity<List<Application>> getCandidateApplications(Authentication authentication) {
         return ResponseEntity.ok(applicationService.getCandidateApplications(authentication.getName()));
     }
 
-    
     @PreAuthorize("hasAnyRole('EMPLOYER', 'ADMIN')")
     @GetMapping("/employer/jobs/{jobId}/applications")
     public ResponseEntity<List<Application>> getJobApplications(
@@ -91,7 +88,12 @@ public class ApplicationController {
         return ResponseEntity.ok(applicationService.getAllEmployerApplications(authentication.getName()));
     }
 
-    
+    @PreAuthorize("hasAnyRole('EMPLOYER', 'ADMIN')")
+    @GetMapping("/employer/analytics")
+    public ResponseEntity<Map<String, Object>> getEmployerAnalytics(Authentication authentication) {
+        return ResponseEntity.ok(applicationService.getEmployerAnalytics(authentication.getName()));
+    }
+
     @PreAuthorize("hasAnyRole('EMPLOYER', 'ADMIN')")
     @PutMapping("/employer/applications/{applicationId}/status")
     public ResponseEntity<Application> updateApplicationStatus(

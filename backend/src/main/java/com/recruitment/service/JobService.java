@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -67,6 +69,13 @@ public class JobService {
                 .orElseThrow(() -> new RuntimeException(
                         "Không tìm thấy thông tin công ty. Vui lòng tạo hồ sơ công ty trước."));
 
+        LocalDateTime startOfToday = LocalDate.now().atStartOfDay();
+        long jobsToday = jobRepository.countByCompanyUserIdAndCreatedAtAfter(user.getId(), startOfToday);
+        if (jobsToday >= 2) {
+            throw new RuntimeException(
+                    "Mỗi tài khoản tuyển dụng chỉ được đăng tối đa 2 tin một ngày. Vui lòng quay lại vào ngày mai!");
+        }
+
         if (categoryIds != null && !categoryIds.isEmpty()) {
             Set<Category> categories = new HashSet<>(categoryRepository.findAllById(categoryIds));
             job.setCategories(categories);
@@ -120,7 +129,7 @@ public class JobService {
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng: " + userEmail));
 
         return companyRepository.findByUserId(user.getId())
-                .map(company -> jobRepository.findByCompanyId(company.getId()))
+                .map(company -> jobRepository.findByCompanyIdOrderByCreatedAtDesc(company.getId()))
                 .orElse(java.util.Collections.emptyList());
     }
 
@@ -139,18 +148,73 @@ public class JobService {
         CandidateProfile profile = candidateProfileRepository.findByUserId(user.getId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy hồ sơ ứng viên"));
 
-        if (profile.getSkills() == null || profile.getSkills().isEmpty()) {
-            return jobRepository.findAll().stream()
-                    .filter(j -> j.getStatus() == JobStatus.ACTIVE)
-                    .sorted((j1, j2) -> Boolean.compare(j2.isPromoted(), j1.isPromoted()))
-                    .limit(5)
-                    .collect(Collectors.toList());
+        Set<Job> recommendations = new java.util.LinkedHashSet<>();
+
+        // 1. Match by Categories from historical interest (Applied/Saved jobs)
+        Set<Long> interestedCategoryIds = new java.util.HashSet<>();
+
+        applicationRepository.findByCandidateIdOrderByAppliedAtDesc(profile.getId()).forEach(app -> {
+            if (app.getJob() != null && app.getJob().getCategories() != null) {
+                app.getJob().getCategories().forEach(cat -> interestedCategoryIds.add(cat.getId()));
+            }
+        });
+
+        savedJobRepository.findByUserIdOrderBySavedAtDesc(user.getId()).forEach(saved -> {
+            if (saved.getJob() != null && saved.getJob().getCategories() != null) {
+                saved.getJob().getCategories().forEach(cat -> interestedCategoryIds.add(cat.getId()));
+            }
+        });
+
+        if (!interestedCategoryIds.isEmpty()) {
+            recommendations.addAll(jobRepository.findByCategories(interestedCategoryIds));
         }
 
-        String[] skills = profile.getSkills().split(",");
-        Set<Job> recommendations = new HashSet<>();
-        for (String skill : skills) {
-            recommendations.addAll(jobRepository.findRecommendations(skill.trim()));
+        // 2. Match by Title (High priority)
+        if (profile.getTitle() != null && !profile.getTitle().isBlank()) {
+            recommendations.addAll(jobRepository.findRecommendations(profile.getTitle().trim()));
+        }
+
+        // 3. Match by Skills
+        if (profile.getSkills() != null && !profile.getSkills().isBlank()) {
+            String[] skills = profile.getSkills().split(",");
+            for (String skill : skills) {
+                if (!skill.trim().isEmpty()) {
+                    recommendations.addAll(jobRepository.findRecommendations(skill.trim()));
+                }
+            }
+        }
+
+        // 4. Priority: Match by Past/Current Experience Positions
+        if (profile.getExperiences() != null) {
+            profile.getExperiences().forEach(exp -> {
+                if (exp.getPosition() != null && !exp.getPosition().isBlank()) {
+                    recommendations.addAll(jobRepository.findRecommendations(exp.getPosition().trim()));
+                }
+            });
+        }
+
+        // 5. Priority: Match by Education Majors
+        if (profile.getEducations() != null) {
+            profile.getEducations().forEach(edu -> {
+                if (edu.getMajor() != null && !edu.getMajor().isBlank()) {
+                    recommendations.addAll(jobRepository.findRecommendations(edu.getMajor().trim()));
+                }
+            });
+        }
+
+        // Fallback or padding if not enough recommendations
+        if (recommendations.size() < 10) {
+            List<Job> trending = jobRepository.findAll().stream()
+                    .filter(j -> j.getStatus() == JobStatus.ACTIVE)
+                    .sorted((j1, j2) -> {
+                        int pComp = Boolean.compare(j2.isPromoted(), j1.isPromoted());
+                        if (pComp != 0)
+                            return pComp;
+                        return j2.getCreatedAt().compareTo(j1.getCreatedAt());
+                    })
+                    .limit(10)
+                    .collect(Collectors.toList());
+            recommendations.addAll(trending);
         }
 
         return recommendations.stream()

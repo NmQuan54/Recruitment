@@ -35,7 +35,9 @@ import Opportunities from './pages/Opportunities';
 import AdsPage from './pages/Ads';
 import NotificationsPage from './pages/Notifications';
 import ChangePassword from './pages/ChangePassword';
+import AIScanner from './pages/AIScanner';
 import Footer from './components/Footer';
+import ViewOnlineCV from './pages/employer/ViewOnlineCV';
 
 const AppContent = () => {
   const location = useLocation();
@@ -95,6 +97,11 @@ const AppContent = () => {
                 <CompanyProfile />
               </ProtectedRoute>
             } />
+            <Route path="/employer/cv/:candidateId" element={
+              <ProtectedRoute allowedRoles={['EMPLOYER']}>
+                <ViewOnlineCV />
+              </ProtectedRoute>
+            } />
             
             <Route path="/candidate/dashboard" element={
               <ProtectedRoute allowedRoles={['CANDIDATE']}>
@@ -133,6 +140,7 @@ const AppContent = () => {
             <Route path="/messages" element={<Chat />} />
             <Route path="/notifications" element={<NotificationsPage />} />
             <Route path="/change-password" element={<ChangePassword />} />
+            <Route path="/ai-scanner" element={<AIScanner />} />
             <Route path="/ads" element={<AdsPage />} />
             <Route path="*" element={
               <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">

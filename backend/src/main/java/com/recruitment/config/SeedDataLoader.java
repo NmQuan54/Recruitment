@@ -26,7 +26,7 @@ public class SeedDataLoader {
                         ApplicationRepository applicationRepository,
                         PasswordEncoder passwordEncoder) {
                 return args -> {
-                        
+
                         if (userRepository.findByEmail("admin").isEmpty()) {
                                 User admin = User.builder()
                                                 .email("admin")
@@ -40,7 +40,6 @@ public class SeedDataLoader {
                                 System.out.println("Admin account created: admin / 0905622341");
                         }
 
-                        
                         if (categoryRepository.count() == 0) {
                                 categoryRepository.save(Category.builder().name("IT - Phần mềm").build());
                                 categoryRepository.save(Category.builder().name("Kinh doanh / Bán hàng").build());
@@ -52,7 +51,6 @@ public class SeedDataLoader {
                                 categoryRepository.save(Category.builder().name("Y tế / Dược").build());
                         }
 
-                        
                         if (userRepository.findByEmail("employer@test.com").isEmpty()) {
                                 User employerUser = User.builder()
                                                 .email("employer@test.com")
@@ -75,7 +73,6 @@ public class SeedDataLoader {
                                                 .build();
                                 companyRepository.save(company);
 
-                                
                                 List<Category> allCategories = categoryRepository.findAll();
                                 Category itCategory = allCategories.get(0);
 
@@ -112,7 +109,6 @@ public class SeedDataLoader {
                                 jobRepository.save(job2);
                         }
 
-                        
                         if (userRepository.findByEmail("hr@vng.com.vn").isEmpty()) {
                                 User hrVNG = User.builder()
                                                 .email("hr@vng.com.vn")
@@ -135,7 +131,6 @@ public class SeedDataLoader {
                                 companyRepository.save(vng);
                         }
 
-                        
                         if (userRepository.findByEmail("candidate@test.com").isEmpty()) {
                                 User candidateUser = User.builder()
                                                 .email("candidate@test.com")
@@ -156,7 +151,6 @@ public class SeedDataLoader {
                                                 .build();
                                 candidateProfileRepository.save(profile);
 
-                                
                                 Job job = jobRepository.findAll().get(0);
                                 Application application = Application.builder()
                                                 .job(job)
@@ -166,6 +160,21 @@ public class SeedDataLoader {
                                                 .status(ApplicationStatus.PENDING)
                                                 .build();
                                 applicationRepository.save(application);
+                        }
+
+                        // Diagnostic check for corrupted dates
+                        try {
+                                System.out.println("Checking Education records for potential date issues...");
+                                // This might trigger the same error if data is corrupt
+                                long eduCount = candidateProfileRepository.findAll().stream()
+                                                .filter(p -> p.getEducations() != null)
+                                                .flatMap(p -> p.getEducations().stream())
+                                                .count();
+                                System.out.println("Total Education records: " + eduCount);
+                        } catch (Exception e) {
+                                System.err.println("CRITICAL: Detected corrupted data in Education table: "
+                                                + e.getMessage());
+                                e.printStackTrace();
                         }
                 };
         }

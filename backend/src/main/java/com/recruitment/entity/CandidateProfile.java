@@ -32,9 +32,11 @@ public class CandidateProfile {
 
     private String address;
 
+    @Builder.Default
     @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
     private java.util.List<WorkExperience> experiences = new java.util.ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
     private java.util.List<Education> educations = new java.util.ArrayList<>();
 

@@ -41,6 +41,24 @@ public class CandidateService {
         return profileRepository.save(newProfile);
     }
 
+    @Transactional
+    public CandidateProfile getProfileByUserId(Long userId) {
+        Optional<CandidateProfile> profileOpt = profileRepository.findByUserId(userId);
+        if (profileOpt.isPresent()) {
+            return profileOpt.get();
+        }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found: " + userId));
+
+        CandidateProfile newProfile = new CandidateProfile();
+        newProfile.setUser(user);
+        newProfile.setTitle("ứng viên");
+        newProfile.setExperiences(new ArrayList<>());
+        newProfile.setEducations(new ArrayList<>());
+        return profileRepository.save(newProfile);
+    }
+
     public List<CandidateProfile> getAllProfiles() {
         return profileRepository.findAll();
     }
@@ -78,8 +96,10 @@ public class CandidateService {
         if (updatedProfile.getSkills() != null)
             existing.setSkills(updatedProfile.getSkills());
 
-        
         if (updatedProfile.getExperiences() != null) {
+            if (existing.getExperiences() == null) {
+                existing.setExperiences(new java.util.ArrayList<>());
+            }
             existing.getExperiences().clear();
             updatedProfile.getExperiences().forEach(exp -> {
                 exp.setProfile(existing);
@@ -87,6 +107,9 @@ public class CandidateService {
             });
         }
         if (updatedProfile.getEducations() != null) {
+            if (existing.getEducations() == null) {
+                existing.setEducations(new java.util.ArrayList<>());
+            }
             existing.getEducations().clear();
             updatedProfile.getEducations().forEach(edu -> {
                 edu.setProfile(existing);

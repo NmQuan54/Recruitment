@@ -60,11 +60,14 @@ public class Job {
 
     private LocalDate deadline;
 
-    
-    
-
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
+
+    @Formula("(SELECT COUNT(*) FROM applications a WHERE a.job_id = id)")
+    private Integer applicantCount;
+
+    @Formula("(SELECT COUNT(*) FROM applications a WHERE a.job_id = id AND a.status = 'PENDING')")
+    private Integer pendingCount;
 
     @ManyToMany
     @JoinTable(name = "job_categories", joinColumns = @JoinColumn(name = "job_id"), inverseJoinColumns = @JoinColumn(name = "category_id"))

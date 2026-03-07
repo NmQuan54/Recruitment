@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { 
@@ -16,27 +16,62 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
+import {
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
+  PieChart, Pie, Cell, Legend
+} from 'recharts';
+
+const COLORS = ['#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#64748b'];
 
 const EmployerDashboard = () => {
   const { user } = useAuth();
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({ active: 0, totalApplicants: 0 });
+  const [chartData, setChartData] = useState({ line: [], pie: [] });
 
   useEffect(() => {
     const fetchEmployerData = async () => {
       try {
-        const response = await api.get('/employer/jobs');
-        const jobsData = response.data;
+        const [jobsRes, appsRes, analyticsRes] = await Promise.all([
+          api.get('/employer/jobs'),
+          api.get('/employer/applications'),
+          api.get('/employer/analytics')
+        ]);
+        
+        const jobsData = jobsRes.data;
+        const appsData = appsRes.data;
+        const { applicationsByDay, educationStats } = analyticsRes.data;
+        
         setJobs(jobsData);
         
-        
         const active = jobsData.filter(j => j.status === 'ACTIVE').length;
-        const totalApps = jobsData.reduce((acc, current) => acc + (current.applicantCount || 0), 0);
+        const totalApps = appsData.length;
+        const pendingApps = appsData.filter(a => a.status === 'PENDING').length;
         
-        setStats({ active, totalApplicants: totalApps });
+        setStats({ active, totalApplicants: totalApps, pending: pendingApps });
+
+        // Transform analytics data for Recharts
+        const lineData = Object.keys(applicationsByDay).map(day => {
+          // Translate day to Vietnamese
+          const dayMap = {
+            'Monday': 'T2', 'Tuesday': 'T3', 'Wednesday': 'T4', 
+            'Thursday': 'T5', 'Friday': 'T6', 'Saturday': 'T7', 'Sunday': 'CN'
+          };
+          return {
+            name: dayMap[day] || day,
+            'Số ứng viên': applicationsByDay[day]
+          };
+        });
+
+        const pieData = Object.keys(educationStats).map(edu => ({
+          name: edu,
+          value: educationStats[edu]
+        }));
+
+        setChartData({ line: lineData, pie: pieData });
       } catch (error) {
-        console.error('Error fetching employer jobs:', error);
+        console.error('Error fetching employer data:', error);
       } finally {
         setLoading(false);
       }
@@ -126,8 +161,60 @@ const EmployerDashboard = () => {
            </div>
            <div>
               <p className="text-slate-400 font-bold text-xs uppercase tracking-widest">Đang chờ duyệt</p>
-              <h3 className="text-3xl font-bold text-slate-900">0</h3>
+              <h3 className="text-3xl font-bold text-slate-900">{stats.pending || 0}</h3>
            </div>
+        </div>
+      </div>
+
+      {/* Analytics Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+        <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
+          <h2 className="font-bold text-xl text-slate-900 mb-6 flex items-center gap-2">
+            <Clock className="text-brand-600" size={24} /> Lượng CV nhật được
+          </h2>
+          <div className="h-72 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={chartData.line} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
+                <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
+                <RechartsTooltip 
+                  contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                />
+                <Line type="monotone" dataKey="Số ứng viên" stroke="#0ea5e9" strokeWidth={4} dot={{ r: 4, strokeWidth: 2 }} activeDot={{ r: 8 }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+        <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
+          <h2 className="font-bold text-xl text-slate-900 mb-6 flex items-center gap-2">
+            <CheckCircle className="text-emerald-500" size={24} /> Trình độ học vấn
+          </h2>
+          <div className="h-72 w-full flex justify-center">
+            {chartData.pie.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={chartData.pie}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={70}
+                    outerRadius={100}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {chartData.pie.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <RechartsTooltip contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                  <Legend verticalAlign="bottom" height={36} iconType="circle" />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+                <div className="flex items-center justify-center h-full w-full text-slate-400 font-medium">Chưa có dữ liệu học vấn</div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -225,5 +312,3 @@ const EmployerDashboard = () => {
 };
 
 export default EmployerDashboard;
-
-

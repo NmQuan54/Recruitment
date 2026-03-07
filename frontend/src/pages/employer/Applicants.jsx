@@ -14,7 +14,8 @@ import {
   ArrowRight,
   Loader2,
   Calendar,
-  MessageSquare
+  MessageSquare,
+  ExternalLink
 } from 'lucide-react';
 
 const JobApplicants = () => {
@@ -31,7 +32,7 @@ const JobApplicants = () => {
           api.get(`/employer/jobs/${jobId}/applications`),
           api.get(`/jobs/${jobId}`)
         ]);
-        setApplications(appRes.data);
+        setApplications(appRes.data.sort((a, b) => new Date(b.appliedAt) - new Date(a.appliedAt)));
         setJob(jobRes.data);
       } catch (error) {
         toast.error('Có lỗi xảy ra khi tải danh sách ứng viên');
@@ -89,6 +90,7 @@ const JobApplicants = () => {
       toast.error('Lỗi khi cập nhật trạng thái');
     }
   };
+
 
   const handleDownload = async (url, candidateName) => {
     if (!url) {
@@ -236,9 +238,11 @@ const JobApplicants = () => {
                         </div>
                      </div>
                      <div className="flex items-end">
-                        <button onClick={() => handleDownload(app.resumeUrl, app.candidate?.fullName || 'Ung_Vien')} className="flex items-center gap-2 text-brand-600 font-bold text-sm hover:underline">
-                           Tải CV <Download size={16} />
-                        </button>
+                        {app.resumeUrl && app.resumeUrl !== 'ONLINE_PROFILE' && (
+                           <button onClick={() => handleDownload(app.resumeUrl, app.candidate?.fullName || 'Ung_Vien')} className="flex items-center gap-2 text-brand-600 font-bold text-sm hover:underline">
+                             Tải CV <Download size={16} />
+                           </button>
+                        )}
                      </div>
                   </div>
                </div>

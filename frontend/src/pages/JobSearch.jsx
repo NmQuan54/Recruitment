@@ -57,7 +57,7 @@ const JobSearch = () => {
         salaryMin: selectedRange?.min ?? undefined,
         salaryMax: selectedRange?.max ?? undefined,
         page,
-        size: 9,
+        size: 4,
       };
 
       const response = await api.get('/jobs', { params });

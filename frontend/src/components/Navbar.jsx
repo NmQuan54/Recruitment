@@ -29,6 +29,7 @@ import {
   Send,
   CreditCard,
   PlusCircle,
+  Sparkles,
 } from 'lucide-react';
 
 const Navbar = () => {
@@ -91,6 +92,7 @@ const Navbar = () => {
   const guestNavItems = [
     { label: 'Trang chủ', path: '/', icon: Home },
     { label: 'Tìm việc làm', path: '/jobs', icon: Search },
+    { label: 'Quét CV AI', path: '/ai-scanner', icon: Sparkles },
     { label: 'Công ty', path: '/companies', icon: Building2 },
   ];
 

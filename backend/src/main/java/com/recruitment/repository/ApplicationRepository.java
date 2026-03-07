@@ -13,18 +13,18 @@ import java.util.List;
 
 @Repository
 public interface ApplicationRepository extends JpaRepository<Application, Long> {
-    List<Application> findByJobId(Long jobId);
+    List<Application> findByJobIdOrderByAppliedAtDesc(Long jobId);
 
     @Modifying
     @Transactional
     void deleteByJobId(Long jobId);
 
-    List<Application> findByCandidateId(Long candidateId);
+    List<Application> findByCandidateIdOrderByAppliedAtDesc(Long candidateId);
 
     boolean existsByJobIdAndCandidateId(Long jobId, Long candidateId);
 
     long countByJobIdAndCandidateIdAndAppliedAtAfter(Long jobId, Long candidateId, LocalDateTime since);
 
-    @Query("SELECT a FROM Application a WHERE a.job.company.user.email = :email")
+    @Query("SELECT a FROM Application a WHERE a.job.company.user.email = :email ORDER BY a.appliedAt DESC")
     List<Application> findAllByEmployerEmail(@Param("email") String email);
 }

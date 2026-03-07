@@ -12,7 +12,8 @@ import {
   Calendar,
   Building,
   MapPin,
-  ClipboardList
+  ClipboardList,
+  FileText
 } from 'lucide-react';
 
 const ResumeEditor = () => {
@@ -71,6 +72,9 @@ const ResumeEditor = () => {
         setResumes(resumesRes.data);
       } catch (error) {
         console.error('Error fetching data:', error);
+        if (error.response && error.response.data) {
+          console.error('Detailed error from backend:', error.response.data);
+        }
       } finally {
         setLoading(false);
       }
@@ -121,8 +125,24 @@ const ResumeEditor = () => {
   const handleSave = async () => {
     setSaving(true);
     try {
+      // Clean up data: convert empty strings to null for dates
+      const cleanedProfile = {
+        ...profile,
+        experiences: profile.experiences.map(exp => ({
+          ...exp,
+          startDate: exp.startDate || null,
+          endDate: exp.endDate || null
+        })),
+        educations: profile.educations.map(edu => ({
+          ...edu,
+          startDate: edu.startDate || null,
+          endDate: edu.endDate || null,
+          gpa: edu.gpa ? parseFloat(edu.gpa) : null
+        }))
+      };
+
       await Promise.all([
-        api.put('/candidate/profile', profile),
+        api.put('/candidate/profile', cleanedProfile),
         api.put('/user/profile', {
           fullName: personalInfo.fullName,
           phone: personalInfo.phone,
@@ -183,6 +203,7 @@ const ResumeEditor = () => {
         major: '',
         startDate: '',
         endDate: '',
+        gpa: '',
         description: ''
       }]
     });
@@ -221,7 +242,7 @@ const ResumeEditor = () => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
         <div>
           <h1 className="text-4xl font-bold text-slate-900 mb-2 tracking-tight">Hồ sơ chuyên nghiệp</h1>
-          <p className="text-slate-500 font-bold">Xây dựng hồ sơ trực tuyến để thu hút nhà tuyển dụng</p>
+          <p className="text-slate-500 font-bold">Cập nhật thông tin chi tiết về kinh nghiệm và học vấn của bạn</p>
         </div>
         <button 
           onClick={handleSave}
@@ -295,6 +316,42 @@ const ResumeEditor = () => {
                       value={profile.address}
                       onChange={(e) => setProfile({...profile, address: e.target.value})}
                     />
+                 </div>
+                 <div>
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 mb-2 block">Kỹ năng (Cách nhau bằng dấu phẩy)</label>
+                    <input 
+                      type="text" 
+                      className="w-full p-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-brand-500/20 font-bold text-slate-900"
+                      value={profile.skills || ''}
+                      onChange={(e) => setProfile({...profile, skills: e.target.value})}
+                      placeholder="VD: Java, React, SQL, Project Management"
+                    />
+                 </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 mb-2 block">CV đính kèm (PDF/Image)</label>
+                    <div className="flex flex-col gap-3">
+                       <label className="w-full p-4 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 hover:border-brand-300 hover:bg-brand-50 transition cursor-pointer flex items-center justify-center gap-2 group">
+                          {uploading ? (
+                             <Loader2 size={18} className="animate-spin text-brand-600" />
+                          ) : (
+                             <Plus size={18} className="text-slate-400 group-hover:text-brand-600" />
+                          )}
+                          <span className="text-sm font-bold text-slate-500 group-hover:text-brand-600">
+                             {profile.resumeUrl ? 'Thay đổi CV' : 'Tải CV lên'}
+                          </span>
+                          <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png" onChange={handleResumeUpload} />
+                       </label>
+                       {profile.resumeUrl && (
+                          <a 
+                            href={profile.resumeUrl} 
+                            target="_blank" 
+                            rel="noreferrer"
+                            className="text-[10px] font-bold text-brand-600 uppercase tracking-widest flex items-center gap-2 ml-2 hover:underline"
+                          >
+                             <FileText size={14} /> Xem CV hiện tại
+                          </a>
+                       )}
+                    </div>
                  </div>
                  <div>
                     <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 mb-2 block">Giới thiệu bản thân</label>
@@ -475,91 +532,22 @@ const ResumeEditor = () => {
                                 />
                              </div>
                           </div>
+                          <div className="md:col-span-2">
+                             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 mb-2 block">Điểm trung bình (GPA)</label>
+                             <input 
+                               type="text" 
+                               className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold"
+                               value={edu.gpa || ''}
+                               onChange={(e) => updateEducation(idx, 'gpa', e.target.value)}
+                               placeholder="VD: 3.8/4.0 hoặc 8.5/10"
+                             />
+                          </div>
                        </div>
                     </div>
                  ))}
                  {profile.educations.length === 0 && (
                    <p className="text-center py-10 text-slate-400 font-bold ">Chưa có thông tin học vấn nào được thêm</p>
                  )}
-              </div>
-           </section>
-
-           {}
-           <section>
-              <div className="flex items-center justify-between mb-6 px-4">
-                 <h2 className="text-2xl font-bold text-slate-900 flex items-center gap-3">
-                   <Save className="text-brand-600" /> Danh sách CV (Files)
-                 </h2>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-6 mb-10">
-                 {}
-                 <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
-                    <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest mb-6">Tải CV mới lên</h3>
-                    <div className="space-y-4">
-                       <div>
-                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 mb-2 block">Tên hiển thị CV</label>
-                          <input 
-                            type="text" 
-                            className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold placeholder:font-medium"
-                            placeholder="VD: CV Kỹ sư Frontend (Vietnamese)"
-                            value={resumeName}
-                            onChange={(e) => setResumeName(e.target.value)}
-                          />
-                       </div>
-                       <div>
-                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 mb-2 block">Chọn File CV (PDF/Image)</label>
-                          <input 
-                            type="file" 
-                            className="w-full p-3 bg-slate-50 rounded-2xl border-none font-bold text-sm"
-                            onChange={(e) => setResumeFile(e.target.files[0])}
-                          />
-                       </div>
-                       <button 
-                         onClick={handleResumeUpload}
-                         disabled={uploadingResume}
-                         className="w-full py-4 bg-brand-600 text-white rounded-2xl font-bold text-sm uppercase tracking-widest hover:bg-slate-900 transition flex items-center justify-center gap-2"
-                       >
-                         {uploadingResume ? <Loader2 className="animate-spin" size={18} /> : <Plus size={18} />}
-                         Tải lên hệ thống
-                       </button>
-                    </div>
-                 </div>
-
-                 {}
-                 <div className="bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-sm relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-brand-50 rounded-full blur-3xl -mr-16 -mt-16"></div>
-                    <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest mb-6 relative z-10">CV đã lưu ({resumes.length})</h3>
-                    
-                    <div className="space-y-3 relative z-10 overflow-y-auto max-h-[16rem] pr-2 custom-scrollbar">
-                       {resumes.map((r) => (
-                          <div key={r.id} className="flex items-center justify-between p-5 bg-slate-50/50 rounded-2xl hover:bg-brand-50 border border-transparent hover:border-brand-100 transition group">
-                             <div className="flex-1 min-w-0 pr-4">
-                                <p className="text-slate-900 font-bold text-sm truncate mb-1 uppercase tracking-tight">{r.name}</p>
-                                <a 
-                                  href={r.resumeUrl} 
-                                  target="_blank" 
-                                  rel="noreferrer"
-                                  className="text-[10px] font-bold text-brand-600 uppercase tracking-[0.2em] hover:text-slate-900 transition flex items-center gap-2"
-                                >
-                                  Xem chi tiết
-                                </a>
-                             </div>
-                             <button 
-                               onClick={() => deleteResume(r.id)}
-                               className="w-10 h-10 rounded-xl bg-red-50 text-red-500 flex items-center justify-center opacity-0 group-hover:opacity-100 transition hover:bg-red-500 hover:text-white shadow-sm"
-                             >
-                               <Trash2 size={16} />
-                             </button>
-                          </div>
-                       ))}
-                       {resumes.length === 0 && (
-                          <div className="py-10 text-center">
-                             <p className="text-slate-300 text-xs font-bold">Chưa có CV nào được tải lên</p>
-                          </div>
-                       )}
-                    </div>
-                 </div>
               </div>
            </section>
         </div>

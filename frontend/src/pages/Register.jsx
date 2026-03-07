@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-hot-toast';
@@ -41,11 +42,13 @@ const Register = () => {
         <div className="absolute inset-0 bg-gradient-to-tr from-brand-900 via-brand-900/40 to-transparent"></div>
         
         <div className="relative z-10 w-full p-20 flex flex-col justify-between text-white">
-          <Link to="/" className="flex items-center gap-3">
-            <div className="bg-white p-2.5 rounded-xl">
-              <Briefcase className="h-6 w-6 text-brand-600" />
-            </div>
-            <span className="text-2xl font-bold tracking-tighter">RecruitPro</span>
+          <Link to="/" className="flex items-center group shrink-0">
+            <motion.img
+              src="/logo.png"
+              alt="RecruitPro"
+              whileHover={{ scale: 1.05 }}
+              className="h-28 w-auto rounded-[2.5rem] bg-white px-5 py-3 shadow-2xl object-contain"
+            />
           </Link>
 
           <div className="max-w-xl">
@@ -76,11 +79,12 @@ const Register = () => {
         <div className="max-w-xl w-full">
           {}
           <div className="lg:hidden flex justify-center mb-10">
-            <Link to="/" className="flex items-center gap-3">
-              <div className="bg-brand-600 p-2 rounded-xl shadow-lg">
-                <Briefcase className="h-5 w-5 text-white" />
-              </div>
-              <span className="text-xl font-bold text-slate-900 tracking-tighter">RecruitPro</span>
+            <Link to="/" className="flex items-center group shrink-0">
+              <img
+                src="/logo.png"
+                alt="RecruitPro"
+                className="h-14 w-auto rounded-xl bg-white px-2 py-1 shadow-lg object-contain"
+              />
             </Link>
           </div>
 

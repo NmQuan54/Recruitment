@@ -17,7 +17,9 @@ import {
   Bookmark,
   BookmarkCheck,
   X,
-  ArrowRight
+  ArrowRight,
+  AlertCircle,
+  User
 } from 'lucide-react';
 
 const JobDetail = () => {
@@ -32,30 +34,30 @@ const JobDetail = () => {
   const [saved, setSaved] = useState(false);
   const [checkingSaved, setCheckingSaved] = useState(true);
   const [togglingSave, setTogglingSave] = useState(false);
-  const [resumes, setResumes] = useState([]);
-  const [selectedResumeUrl, setSelectedResumeUrl] = useState('');
+  const [profileResumeUrl, setProfileResumeUrl] = useState('');
   const [loadingResumes, setLoadingResumes] = useState(false);
-  const [applyType, setApplyType] = useState('existing'); 
+  const [applyType, setApplyType] = useState('upload');
   const [resumeFile, setResumeFile] = useState(null);
-  const [uploadingResume, setUploadingResume] = useState(false);
+  const [selectedResumeUrl, setSelectedResumeUrl] = useState('');
 
   useEffect(() => {
     if (showModal && user?.role === 'CANDIDATE') {
-      const fetchResumes = async () => {
+      const fetchData = async () => {
         setLoadingResumes(true);
         try {
-          const res = await api.get('/resumes');
-          setResumes(res.data || []);
-          if (res.data.length > 0) {
-            setSelectedResumeUrl(res.data[0].resumeUrl);
+          const res = await api.get('/candidate/profile');
+          setProfileResumeUrl(res.data.resumeUrl || '');
+          setApplyType('upload');
+          if (res.data.resumeUrl) {
+            setSelectedResumeUrl(res.data.resumeUrl);
           }
         } catch (error) {
-          toast.error('Không thể tải danh sách CV');
+          console.error('Error fetching profile:', error);
         } finally {
           setLoadingResumes(false);
         }
       };
-      fetchResumes();
+      fetchData();
     }
   }, [showModal, user]);
 
@@ -124,6 +126,9 @@ const JobDetail = () => {
     }
     
     let finalResumeUrl = selectedResumeUrl;
+    if (applyType === 'profile') {
+      finalResumeUrl = 'ONLINE_PROFILE';
+    }
 
     setApplying(true);
     try {
@@ -151,7 +156,7 @@ const JobDetail = () => {
         }
       }
 
-      if (!finalResumeUrl) {
+      if (!finalResumeUrl && applyType !== 'profile') {
         toast.error('Vui lòng chọn hoặc tải lên CV của bạn');
         setApplying(false);
         return;
@@ -310,11 +315,17 @@ const JobDetail = () => {
 
       {}
       {showModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md">
-           <div className="bg-white w-full max-w-xl rounded-[3rem] p-12 shadow-3xl animate-fade-in relative">
+        <div 
+          className="fixed inset-0 z-[999] flex items-start justify-center p-4 bg-slate-900/60 backdrop-blur-md overflow-y-auto pt-32 pb-12 no-scrollbar"
+          onClick={() => setShowModal(false)}
+        >
+           <div 
+             className="bg-white w-full max-w-xl rounded-[3rem] p-12 shadow-3xl animate-fade-in relative my-8"
+             onClick={(e) => e.stopPropagation()}
+           >
               <button 
                 onClick={() => setShowModal(false)}
-                className="absolute top-8 right-8 text-slate-400 hover:text-slate-900 transition"
+                className="absolute top-8 right-8 w-11 h-11 bg-slate-100 text-slate-400 rounded-2xl flex items-center justify-center hover:bg-slate-900 hover:text-white transition-all shadow-sm"
               >
                 <X size={24} />
               </button>
@@ -339,40 +350,13 @@ const JobDetail = () => {
                  </div>
 
                  <div className="space-y-4">
-                    <div className="flex gap-4 mb-2 p-1 bg-slate-100 rounded-2xl w-fit mx-auto">
-                       <button 
-                         type="button"
-                         onClick={() => setApplyType('existing')}
-                         className={`px-6 py-2 rounded-xl text-xs font-bold transition-all ${applyType === 'existing' ? 'bg-white text-brand-600 shadow-sm' : 'text-slate-400'}`}
-                       >
-                         CV đã có sẵn
-                       </button>
-                       <button 
-                         type="button"
-                         onClick={() => setApplyType('upload')}
-                         className={`px-6 py-2 rounded-xl text-xs font-bold transition-all ${applyType === 'upload' ? 'bg-white text-brand-600 shadow-sm' : 'text-slate-400'}`}
-                       >
-                         Tải CV mới lên
-                       </button>
-                    </div>
+                    {/* Applying Options */}
 
-                    {applyType === 'existing' ? (
+                    {applyType === 'upload' && (
                       <div className="space-y-3">
-                        <label className="text-[10px] font-bold text-slate-400 ml-4 uppercase tracking-[0.2em]">Chọn CV trong hồ sơ</label>
-                        <select 
-                          className="w-full p-6 bg-slate-50 border-none rounded-[2rem] font-bold text-slate-900 focus:ring-2 focus:ring-brand-500/20 transition appearance-none"
-                          value={selectedResumeUrl}
-                          onChange={(e) => setSelectedResumeUrl(e.target.value)}
-                        >
-                          {resumes.map(r => (
-                            <option key={r.id} value={r.resumeUrl}>{r.name}</option>
-                          ))}
-                          {resumes.length === 0 && <option value="">Bạn chưa có CV nào trong hồ sơ</option>}
-                        </select>
-                      </div>
-                    ) : (
-                      <div className="space-y-3">
-                         <label className="text-[10px] font-bold text-slate-400 ml-4 uppercase tracking-[0.2em]">Upload file CV (PDF/Ảnh)</label>
+                         <div className="flex items-center justify-between ml-4 mb-1">
+                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Upload file CV (PDF/Ảnh)</label>
+                         </div>
                          <div className="relative group">
                             <input 
                               type="file" 
@@ -392,14 +376,12 @@ const JobDetail = () => {
                     )}
                  </div>
 
-                 <div className="bg-brand-50/50 border border-brand-100 p-6 rounded-3xl flex items-start gap-4">
-                    <CheckCircle2 className="text-brand-600 mt-1" size={20} shrink={0} />
+                  <div className="bg-brand-50/50 border border-brand-100 p-6 rounded-3xl flex items-start gap-4">
+                    <CheckCircle2 className="text-brand-600 mt-1 shrink-0" size={20} />
                     <p className="text-xs font-bold text-slate-500 leading-relaxed">
-                      {resumes.length > 0 
-                        ? "CV bạn chọn sẽ được gửi đến nhà tuyển dụng cùng với thư giới thiệu này."
-                        : "Bạn chưa có CV nào trong danh sách. Hãy vào trang Hồ sơ để tải CV lên trước khi ứng tuyển."}
+                      File CV bạn vừa chọn sẽ được đính kèm vào hồ sơ ứng tuyển này.
                     </p>
-                 </div>
+                  </div>
 
                  <div className="flex gap-4">
                     <button 

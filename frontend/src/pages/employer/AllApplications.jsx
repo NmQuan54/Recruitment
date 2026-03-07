@@ -10,11 +10,12 @@ import {
   CheckCircle, 
   XCircle, 
   Clock,
-  Loader2,
-  AlertCircle,
   Mail,
   Phone,
-  ArrowRight
+  ArrowRight,
+  Loader2,
+  AlertCircle,
+  ExternalLink
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
@@ -28,9 +29,15 @@ const AllApplications = () => {
   }, []);
 
   const fetchApplications = async () => {
+    setLoading(true);
     try {
       const response = await api.get('/employer/applications'); 
-      setApplications(response.data);
+      const sorted = response.data.sort((a, b) => {
+        const dateA = a.appliedAt ? new Date(a.appliedAt) : new Date(0);
+        const dateB = b.appliedAt ? new Date(b.appliedAt) : new Date(0);
+        return dateB - dateA;
+      });
+      setApplications(sorted);
     } catch (error) {
       toast.error('Không thể tải danh sách ứng viên');
     } finally {
@@ -54,18 +61,20 @@ const AllApplications = () => {
       return;
     }
     
+    // Check if it's an absolute URL
+    if (url.startsWith('http')) {
+        // Just open in new tab for external URLs
+        window.open(url, '_blank');
+        return;
+    }
+
+    toast.loading('Đang tải file...', { id: 'downloading' });
     try {
-      toast.loading('Đang chuẩn bị tải xuống...', { id: 'downloading' });
-      
-      const response = await fetch(url);
-      if (!response.ok) throw new Error('Network response was not ok');
-      
-      const blob = await response.blob();
-      const blobUrl = window.URL.createObjectURL(blob);
+      const response = await api.get(url, { responseType: 'blob' });
+      const blobUrl = window.URL.createObjectURL(new Blob([response.data]));
       
       const link = document.createElement('a');
       link.href = blobUrl;
-      
       
       const extension = url.split('.').pop();
       link.download = `CV_${candidateName.replace(/\s+/g, '_')}.${extension}`;
@@ -103,15 +112,17 @@ const AllApplications = () => {
             className="group bg-white rounded-[3rem] border border-slate-50 p-8 shadow-xl hover:shadow-brand-500/5 transition-all duration-500"
           >
             <div className="flex flex-col lg:flex-row gap-8 items-center lg:items-start">
-               {}
-               <div className="w-20 h-20 bg-brand-50 rounded-full flex items-center justify-center text-brand-600 shrink-0 shadow-inner group-hover:scale-110 transition-transform">
-                  <User size={36} />
-               </div>
+                <div className="w-24 h-24 rounded-[2rem] bg-gradient-to-br from-brand-50 to-brand-100 flex items-center justify-center text-brand-600 shadow-inner group-hover:scale-110 transition-transform duration-500">
+                   <User size={40} />
+                </div>
 
-               <div className="flex-1 min-w-0 text-center lg:text-left">
-                  <div className="flex flex-wrap justify-center lg:justify-start items-center gap-3 mb-4">
-                     <h3 className="text-2xl font-bold text-slate-900">{app.candidate?.fullName || 'Ứng viên'}</h3>
-                     <span className={`px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${
+                <div className="flex-1">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                     <div>
+                        <h2 className="text-2xl font-black text-slate-900 mb-1 group-hover:text-brand-600 transition-colors">{app.candidate?.fullName}</h2>
+                        <p className="text-brand-500 font-bold text-sm uppercase tracking-widest">{app.candidate?.title || 'Ứng viên'}</p>
+                     </div>
+                     <span className={`px-5 py-2 rounded-2xl text-xs font-black uppercase tracking-widest ${
                         app.status === 'PENDING' ? 'bg-amber-50 text-amber-600' :
                         app.status === 'ACCEPTED' ? 'bg-emerald-50 text-emerald-600' :
                         app.status === 'REJECTED' ? 'bg-red-50 text-red-600' :
@@ -150,12 +161,14 @@ const AllApplications = () => {
                   )}
 
                   <div className="flex flex-wrap justify-center lg:justify-start gap-4 h-12">
-                     <button 
-                       onClick={() => handleDownload(app.resumeUrl, app.candidate?.fullName || 'Ung_Vien')}
-                       className="px-6 py-2.5 bg-slate-900 text-white font-bold text-xs uppercase tracking-widest rounded-2xl shadow-xl flex items-center gap-2 hover:bg-brand-600 transition-colors"
-                     >
-                       <Download size={16} /> Hồ sơ (CV)
-                     </button>
+                     {app.resumeUrl && app.resumeUrl !== 'ONLINE_PROFILE' && (
+                        <button 
+                          onClick={() => handleDownload(app.resumeUrl, app.candidate?.fullName || 'Ung_Vien')}
+                          className="px-8 py-3 bg-slate-900 text-white font-black text-[10px] uppercase tracking-widest rounded-2xl shadow-xl flex items-center gap-2 hover:bg-brand-600 transition-all active:scale-95"
+                        >
+                          <Download size={16} /> Hồ sơ (CV)
+                        </button>
+                      )}
                      
                      {app.status === 'PENDING' && (
                        <>
@@ -174,22 +187,24 @@ const AllApplications = () => {
                        </>
                      )}
                   </div>
-               </div>
-               
-               <button 
-                 onClick={() => navigate(`/employer/jobs/${app.job?.id}/applicants`)}
-                 className="lg:self-center p-4 bg-brand-50 text-brand-600 rounded-2xl hover:bg-brand-600 hover:text-white transition-all duration-300"
-                 title="Xem tất cả ứng viên của tin này"
-               >
-                 <ArrowRight size={24} />
-               </button>
+                </div>
+                
+                <button 
+                  onClick={() => navigate(`/employer/jobs/${app.job?.id}/applicants`)}
+                  className="lg:self-center p-4 bg-brand-50 text-brand-600 rounded-2xl hover:bg-brand-600 hover:text-white transition-all duration-300"
+                  title="Xem tất cả ứng viên của tin này"
+                >
+                  <ArrowRight size={24} />
+                </button>
             </div>
           </div>
         )) : (
-          <div className="text-center py-20 bg-slate-50 rounded-[4rem] border-4 border-dashed border-slate-100">
-            <AlertCircle size={64} className="mx-auto text-slate-200 mb-6" />
-            <h3 className="text-2xl font-bold text-slate-900 mb-2 ">Chưa có lượt ứng tuyển</h3>
-            <p className="text-slate-400 font-bold ">Hãy tiếp tục chia sẻ bài đăng để thu hút nhân tài.</p>
+          <div className="text-center py-20 bg-white rounded-[3rem] border border-slate-50 shadow-xl">
+             <div className="bg-slate-50 w-24 h-24 rounded-[2rem] flex items-center justify-center mx-auto mb-6 text-slate-200">
+                <AlertCircle size={48} />
+             </div>
+             <h3 className="text-2xl font-bold text-slate-900 mb-2">Chưa có ứng tuyển nào</h3>
+             <p className="text-slate-500 font-bold">Hãy cập nhật tin tuyển dụng để thu hút nhân tài!</p>
           </div>
         )}
       </div>
@@ -198,5 +213,3 @@ const AllApplications = () => {
 };
 
 export default AllApplications;
-
-

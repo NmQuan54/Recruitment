@@ -43,11 +43,12 @@ const Login = () => {
         <div className="absolute inset-0 bg-gradient-to-br from-brand-900/80 via-transparent to-brand-800/40"></div>
         
         <div className="relative z-10 w-full p-20 flex flex-col justify-between text-white">
-          <Link to="/" className="flex items-center gap-3">
-            <div className="bg-white p-2.5 rounded-xl shadow-2xl">
-              <Briefcase className="h-6 w-6 text-brand-600" />
-            </div>
-            <span className="text-2xl font-bold tracking-tighter">RecruitPro</span>
+          <Link to="/" className="flex items-center group shrink-0">
+            <img
+              src="/logo.png"
+              alt="RecruitPro"
+              className="h-28 w-auto rounded-[2.5rem] bg-white px-5 py-3 shadow-2xl object-contain hover:scale-105 transition-all duration-500"
+            />
           </Link>
 
           <div>
@@ -73,11 +74,12 @@ const Login = () => {
         <div className="max-w-md w-full">
           {}
           <div className="lg:hidden flex justify-center mb-12">
-            <Link to="/" className="flex items-center gap-3">
-              <div className="bg-brand-600 p-2 rounded-xl shadow-lg">
-                <Briefcase className="h-5 w-5 text-white" />
-              </div>
-              <span className="text-xl font-bold text-slate-900 tracking-tighter">RecruitPro</span>
+            <Link to="/" className="flex items-center group shrink-0">
+              <img
+                src="/logo.png"
+                alt="RecruitPro"
+                className="h-14 w-auto rounded-xl bg-white px-2 py-1 shadow-lg object-contain"
+              />
             </Link>
           </div>
 
