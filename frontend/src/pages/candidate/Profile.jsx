@@ -65,7 +65,7 @@ const CandidateProfile = () => {
     <div className="w-full px-4 pt-32 pb-12">
       <div className="mb-12 flex flex-col md:flex-row justify-between items-center gap-6">
         <div className="text-center md:text-left">
-           <h1 className="text-3xl font-bold text-slate-900 mb-2 ">Hồ sơ chuyên nghiệp</h1>
+           <h1 className="text-3xl font-bold text-slate-900 mb-2 ">Thông tin cá nhân</h1>
            <p className="text-slate-500 font-medium">Hoàn thiện hồ sơ để thu hút nhà tuyển dụng</p>
         </div>
         <div className="px-6 py-3 bg-emerald-50 text-emerald-600 rounded-2xl font-bold text-sm flex items-center gap-2 border border-emerald-100">

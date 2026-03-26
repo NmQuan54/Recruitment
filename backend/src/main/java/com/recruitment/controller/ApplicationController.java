@@ -24,6 +24,9 @@ public class ApplicationController {
     @Autowired
     private ApplicationService applicationService;
 
+    @Autowired
+    private com.recruitment.service.InterviewService interviewService;
+
     @PreAuthorize("hasRole('CANDIDATE')")
     @PostMapping("/candidate/jobs/{jobId}/apply")
     public ResponseEntity<?> applyForJob(
@@ -116,5 +119,37 @@ public class ApplicationController {
         return ResponseEntity
                 .ok(applicationService.scheduleInterview(authentication.getName(), applicationId, interviewDate,
                         notes));
+    }
+
+    @PreAuthorize("hasAnyRole('EMPLOYER', 'ADMIN')")
+    @PostMapping("/employer/applications/{applicationId}/slots")
+    public ResponseEntity<?> setInterviewSlots(
+            @PathVariable Long applicationId,
+            @RequestBody List<com.recruitment.entity.InterviewSlot> slots,
+            Authentication authentication) {
+        return ResponseEntity.ok(interviewService.setInterviewSlots(authentication.getName(), applicationId, slots));
+    }
+
+    @PreAuthorize("hasAnyRole('EMPLOYER', 'ADMIN')")
+    @GetMapping("/employer/applications/{applicationId}/slots")
+    public ResponseEntity<?> getInterviewSlotsEmployer(
+            @PathVariable Long applicationId) {
+        // Recycle the same service method or similar
+        return ResponseEntity.ok(interviewService.getAvailableSlots(applicationId));
+    }
+
+    @PreAuthorize("hasRole('CANDIDATE')")
+    @GetMapping("/candidate/applications/{applicationId}/slots")
+    public ResponseEntity<?> getAvailableSlots(
+            @PathVariable Long applicationId) {
+        return ResponseEntity.ok(interviewService.getAvailableSlots(applicationId));
+    }
+
+    @PreAuthorize("hasRole('CANDIDATE')")
+    @PostMapping("/candidate/slots/{slotId}/book")
+    public ResponseEntity<?> bookSlot(
+            @PathVariable Long slotId,
+            Authentication authentication) {
+        return ResponseEntity.ok(interviewService.bookSlot(authentication.getName(), slotId));
     }
 }

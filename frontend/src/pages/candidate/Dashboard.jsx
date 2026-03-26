@@ -142,29 +142,22 @@ const CandidateDashboard = () => {
 
         {}
         <div className="space-y-8">
-           <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-xl relative overflow-hidden">
-              <div className="absolute -top-10 -right-10 w-40 h-40 bg-brand-50 rounded-full blur-3xl"></div>
+           {}
+           <div className="bg-slate-900 p-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden group">
+              <div className="absolute -top-10 -right-10 w-40 h-40 bg-brand-600/20 rounded-full blur-3xl group-hover:bg-brand-600/40 transition-all duration-700"></div>
               <div className="relative z-10 flex flex-col items-center text-center">
-                 <div className="w-24 h-24 bg-brand-600 rounded-3xl mb-6 flex items-center justify-center text-3xl font-bold text-white shadow-lg">
-                    {user.fullName?.charAt(0)}
-                 </div>
-                 <h3 className="text-2xl font-bold text-slate-900 mb-1">{user.fullName}</h3>
-                 <p className="text-brand-600 font-bold mb-8 uppercase tracking-widest text-xs">Ứng viên</p>
+                 <h3 className="text-xl font-bold text-white mb-2 italic">Xin chào, {user.fullName}!</h3>
+                 <p className="text-brand-400 font-bold mb-8 uppercase tracking-[0.3em] text-[10px]">Cùng tìm kiếm bến đỗ tiếp theo nào</p>
                  
-                 <div className="w-full grid grid-cols-2 gap-3 mb-8">
-                    <div className="bg-slate-50 p-4 rounded-2xl flex flex-col items-center">
-                       <span className="text-slate-400 text-[10px] font-bold uppercase tracking-widest opacity-60">Hồ sơ</span>
-                       <span className="text-xl font-bold text-slate-900">{applications.length}</span>
+                 <div className="w-full flex gap-3 mb-2">
+                    <div className="flex-1 bg-white/5 p-5 rounded-3xl backdrop-blur-md flex flex-col items-center border border-white/10 group-hover:border-white/20 transition-all">
+                       <span className="text-slate-400 text-[9px] font-black uppercase tracking-widest opacity-60 mb-1">Ứng tuyển</span>
+                       <span className="text-2xl font-black text-white">{applications.length}</span>
                     </div>
-                    <Link to="/candidate/saved-jobs" className="bg-slate-50 p-4 rounded-2xl flex flex-col items-center hover:bg-brand-50 transition border border-transparent hover:border-brand-100">
-                       <span className="text-brand-600 text-[10px] font-bold uppercase tracking-widest opacity-60">Đã lưu</span>
-                       <span className="text-xl font-bold text-slate-900">{savedCount}</span>
+                    <Link to="/candidate/saved-jobs" className="flex-1 bg-white/5 p-5 rounded-3xl backdrop-blur-md flex flex-col items-center border border-white/10 hover:bg-brand-600/20 hover:border-brand-500 transition-all">
+                       <span className="text-brand-400 text-[9px] font-black uppercase tracking-widest opacity-60 mb-1">Đã lưu</span>
+                       <span className="text-2xl font-black text-white">{savedCount}</span>
                     </Link>
-                  </div>
-                  
-                  <div className="w-full space-y-4">
-                     <Link to="/candidate/profile" className="block w-full py-4 bg-brand-600 text-white hover:bg-slate-900 rounded-2xl font-bold transition shadow-lg">Sửa hồ sơ</Link>
-                     <Link to="/candidate/saved-jobs" className="block w-full py-2 text-slate-400 font-bold text-sm hover:text-brand-600 transition tracking-widest uppercase">Quản lý việc đã lưu</Link>
                   </div>
               </div>
            </div>

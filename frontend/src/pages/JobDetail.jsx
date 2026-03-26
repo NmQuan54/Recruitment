@@ -63,6 +63,11 @@ const JobDetail = () => {
 
   useEffect(() => {
     const fetchJob = async () => {
+      if (!id || id === 'null') {
+        toast.error('Thiếu thông tin công việc');
+        navigate('/jobs');
+        return;
+      }
       try {
         const response = await api.get(`/jobs/${id}`);
         setJob(response.data);
@@ -204,7 +209,7 @@ const JobDetail = () => {
          <div className="p-8 md:p-16 bg-white/50 border-b border-slate-100/50">
             <div className="flex flex-col lg:flex-row gap-10 items-start lg:items-center">
                <div className="w-32 h-32 bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-slate-100 flex items-center justify-center p-6 shrink-0   transition-transform duration-500">
-                  {job.company?.logoUrl ? (
+                  {job?.company?.logoUrl ? (
                     <img src={job.company.logoUrl} alt={job.company.name} className="w-full h-full object-contain" />
                   ) : (
                     <Building className="h-12 w-12 text-brand-600" />
@@ -213,14 +218,14 @@ const JobDetail = () => {
                <div className="flex-1">
                   <div className="flex flex-wrap items-center gap-3 mb-6">
                      <span className="px-4 py-1.5 bg-brand-600 text-white text-[10px] font-bold rounded-full uppercase tracking-widest">
-                       {job.jobType === 'FULL_TIME' ? 'Toàn thời gian' : job.jobType === 'PART_TIME' ? 'Bán thời gian' : job.jobType?.replace('_', ' ') || 'Tuyển dụng'}
+                       {job?.jobType === 'FULL_TIME' ? 'Toàn thời gian' : job?.jobType === 'PART_TIME' ? 'Bán thời gian' : job?.jobType?.replace('_', ' ') || 'Tuyển dụng'}
                      </span>
                      <span className="px-4 py-1.5 bg-emerald-500 text-white text-[10px] font-bold rounded-full uppercase tracking-widest">Đang tuyển</span>
                   </div>
-                  <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4 tracking-tight leading-tight">{job.title}</h1>
+                  <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4 tracking-tight leading-tight">{job?.title}</h1>
                   <p className="text-xl font-bold text-brand-600 mb-6 flex items-center gap-2">
-                    {job.company?.name || 'Công ty ẩn danh'} 
-                    {job.company?.website && (
+                    {job?.company?.name || 'Công ty ẩn danh'} 
+                    {job?.company?.website && (
                       <a href={job.company.website} target="_blank" rel="noreferrer" className="text-slate-300 hover:text-brand-400 transition">
                         <ArrowRight size={18} className="-rotate-45" />
                       </a>
@@ -228,9 +233,22 @@ const JobDetail = () => {
                   </p>
                   
                   <div className="flex flex-wrap gap-x-10 gap-y-4 text-slate-500 font-semibold">
-                     <span className="flex items-center gap-2.5"><MapPin size={18} className="text-brand-400" /> {job.location}</span>
-                     <span className="flex items-center gap-2.5"><DollarSign size={18} className="text-brand-400" /> {job.salaryMin && job.salaryMax ? `${(job.salaryMin/1000000).toFixed(0)} - ${(job.salaryMax/1000000).toFixed(0)} Triệu VNĐ` : 'Thỏa thuận'}</span>
-                     <span className="flex items-center gap-2.5"><Calendar size={18} className="text-brand-400" /> Hạn nộp: {job.deadline ? new Date(job.deadline).toLocaleDateString('vi-VN') : 'Liên hệ'}</span>
+                     <span className="flex items-center gap-2.5"><MapPin size={18} className="text-brand-400" /> {job?.location}</span>
+                     <span className="flex items-center gap-2.5"><DollarSign size={18} className="text-brand-400" /> 
+                        {(() => {
+                          const min = job?.salaryMin;
+                          const max = job?.salaryMax;
+                          if (!min && !max) return 'Thỏa thuận';
+                          const formatValue = (v) => {
+                             if (!v) return '';
+                             if (v >= 1e9) return (v / 1e9).toLocaleString('vi-VN', { maximumFractionDigits: 1 }) + ' Tỷ';
+                             if (v >= 1e6) return (v / 1e6).toLocaleString('vi-VN', { maximumFractionDigits: 0 }) + ' Triệu';
+                             return v.toLocaleString('vi-VN') + ' VND';
+                          };
+                          return min && max ? `${formatValue(min)} - ${formatValue(max)}` : min ? `Từ ${formatValue(min)}` : `Đến ${formatValue(max)}`;
+                        })()}
+                     </span>
+                     <span className="flex items-center gap-2.5"><Calendar size={18} className="text-brand-400" /> Hạn nộp: {job?.deadline ? new Date(job.deadline).toLocaleDateString('vi-VN') : 'Liên hệ'}</span>
                   </div>
                </div>
                

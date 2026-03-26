@@ -44,7 +44,7 @@ const JobApplicants = () => {
   }, [jobId]);
 
   const [schedulingApp, setSchedulingApp] = useState(null);
-  const [interviewDate, setInterviewDate] = useState('');
+  const [slots, setSlots] = useState([{ startTime: '', endTime: '' }]);
   const [interviewNotes, setInterviewNotes] = useState('');
 
   const [feedbackApp, setFeedbackApp] = useState(null); // { appId, status }
@@ -52,27 +52,37 @@ const JobApplicants = () => {
 
   const handleScheduleInterview = async () => {
     try {
-      if (!interviewDate) {
-        toast.error('Vui lòng chọn thời gian phỏng vấn');
+      const validSlots = slots.filter(s => s.startTime && s.endTime);
+      if (validSlots.length === 0) {
+        toast.error('Vui lòng chọn ít nhất một khung giờ phỏng vấn');
         return;
       }
-      await api.put(`/employer/applications/${schedulingApp}/schedule`, null, {
-        params: { 
-          interviewDate: interviewDate,
-          notes: interviewNotes
-        }
-      });
-      toast.success('Đã lên lịch phỏng vấn!');
+      
+      await api.post(`/employer/applications/${schedulingApp}/slots`, validSlots);
+      
+      // Also update application status to REVIEWING or handle a specific status if needed
+      // Actually the service already handles notification. 
+      // Let's also update the local state.
       setApplications(prev => prev.map(app => 
-        app.id === schedulingApp ? { ...app, status: 'INTERVIEW', interviewDate, interviewNotes } : app
+        app.id === schedulingApp ? { ...app, status: 'REVIEWING' } : app
       ));
+      
+      toast.success('Đã gửi các khung giờ phỏng vấn cho ứng viên!');
       setSchedulingApp(null);
-      setInterviewDate('');
+      setSlots([{ startTime: '', endTime: '' }]);
       setInterviewNotes('');
     } catch (error) {
       console.error('Error scheduling interview:', error);
-      toast.error('Lỗi khi lên lịch phỏng vấn');
+      toast.error('Lỗi khi gửi khung giờ phỏng vấn');
     }
+  };
+
+  const addSlot = () => setSlots([...slots, { startTime: '', endTime: '' }]);
+  const removeSlot = (index) => setSlots(slots.filter((_, i) => i !== index));
+  const updateSlot = (index, field, value) => {
+    const newSlots = [...slots];
+    newSlots[index][field] = value;
+    setSlots(newSlots);
   };
 
   const updateStatus = async (appId, newStatus, feedback = '') => {
@@ -261,39 +271,76 @@ const JobApplicants = () => {
 
       {schedulingApp && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-[2.5rem] w-full max-w-lg p-10 animate-in fade-in zoom-in duration-300">
-            <h2 className="text-3xl font-bold text-slate-900 mb-6">Lên lịch phỏng vấn</h2>
+          <div className="bg-white rounded-[2.5rem] w-full max-w-2xl p-10 animate-in fade-in zoom-in duration-300 max-h-[90vh] overflow-y-auto">
+            <h2 className="text-3xl font-bold text-slate-900 mb-6 font-display">Gửi các khung giờ phỏng vấn</h2>
+            <p className="text-slate-500 font-medium mb-8">Ứng viên sẽ chọn 1 trong các khung giờ bạn đề xuất.</p>
+            
             <div className="space-y-6">
-              <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 ">Thời gian</label>
-                <input 
-                  type="datetime-local" 
-                  value={interviewDate}
-                  onChange={(e) => setInterviewDate(e.target.value)}
-                  className="w-full bg-slate-50 border-none rounded-2xl px-6 py-4 font-bold text-slate-900 focus:ring-2 focus:ring-brand-500 transition"
-                />
+              <div className="space-y-4">
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest ">Các khung giờ đề xuất</label>
+                {slots.map((slot, idx) => (
+                  <div key={idx} className="flex gap-4 items-end bg-slate-50 p-4 rounded-2xl relative group">
+                    <div className="flex-1">
+                      <label className="block text-[10px] font-bold text-slate-400 uppercase mb-2">Bắt đầu</label>
+                      <input 
+                        type="datetime-local" 
+                        value={slot.startTime}
+                        onChange={(e) => updateSlot(idx, 'startTime', e.target.value)}
+                        className="w-full bg-white border-none rounded-xl px-4 py-3 font-bold text-slate-900 focus:ring-2 focus:ring-brand-500 transition"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <label className="block text-[10px] font-bold text-slate-400 uppercase mb-2">Kết thúc</label>
+                      <input 
+                        type="datetime-local" 
+                        value={slot.endTime}
+                        onChange={(e) => updateSlot(idx, 'endTime', e.target.value)}
+                        className="w-full bg-white border-none rounded-xl px-4 py-3 font-bold text-slate-900 focus:ring-2 focus:ring-brand-500 transition"
+                      />
+                    </div>
+                    {slots.length > 1 && (
+                      <button 
+                        onClick={() => removeSlot(idx)}
+                        className="p-3 text-rose-500 hover:bg-rose-50 rounded-xl transition"
+                      >
+                        <XCircle size={20} />
+                      </button>
+                    )}
+                  </div>
+                ))}
+                <button 
+                  onClick={addSlot}
+                  className="w-full py-4 border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 font-bold hover:border-brand-500 hover:text-brand-500 transition flex items-center justify-center gap-2"
+                >
+                  <Clock size={18} /> Thêm khung giờ khác
+                </button>
               </div>
+
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 ">Ghi chú / Địa điểm</label>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 ">Ghi chú bổ sung (Tùy chọn)</label>
                 <textarea 
                   value={interviewNotes}
                   onChange={(e) => setInterviewNotes(e.target.value)}
-                  placeholder="Ví dụ: Phòng họp 302 hoặc link Google Meet..."
-                  className="w-full bg-slate-50 border-none rounded-2xl px-6 py-4 font-bold text-slate-900 focus:ring-2 focus:ring-brand-500 transition h-32"
+                  placeholder="Ví dụ: Link phỏng vấn Online, phòng họp..."
+                  className="w-full bg-slate-50 border-none rounded-2xl px-6 py-4 font-bold text-slate-900 focus:ring-2 focus:ring-brand-500 transition h-24"
                 />
               </div>
+
               <div className="flex gap-4 pt-4">
                 <button 
-                  onClick={() => setSchedulingApp(null)}
+                  onClick={() => {
+                    setSchedulingApp(null);
+                    setSlots([{ startTime: '', endTime: '' }]);
+                  }}
                   className="flex-1 px-8 py-4 bg-slate-100 text-slate-500 rounded-2xl font-bold hover:bg-slate-200 transition"
                 >
                   Hủy bỏ
                 </button>
                 <button 
                   onClick={handleScheduleInterview}
-                  className="flex-1 px-8 py-4 bg-brand-600 text-white rounded-2xl font-bold shadow-lg shadow-brand-100 hover:bg-slate-900 transition"
+                  className="flex-1 px-8 py-4 bg-slate-900 text-white rounded-2xl font-bold shadow-2xl hover:bg-brand-600 transition"
                 >
-                  Xác nhận
+                  Gửi lời mời
                 </button>
               </div>
             </div>

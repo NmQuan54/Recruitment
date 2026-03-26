@@ -42,6 +42,13 @@ public class JobController {
                         PageRequest.of(page, size)));
     }
 
+    @GetMapping("/jobs/promoted")
+    public ResponseEntity<Page<Job>> getPromotedJobs(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(jobService.getPromotedJobs(PageRequest.of(page, size)));
+    }
+
     @GetMapping("/jobs/{id}")
     public ResponseEntity<Job> getJob(@PathVariable Long id) {
         return ResponseEntity.ok(jobService.getJobById(id));
@@ -101,13 +108,7 @@ public class JobController {
         return ResponseEntity.ok(jobService.updateJobStatus(authentication.getName(), id, status));
     }
 
-    @PreAuthorize("hasRole('EMPLOYER')")
-    @PostMapping("/employer/jobs/{id}/promote")
-    public ResponseEntity<Job> togglePromotion(
-            @PathVariable Long id,
-            Authentication authentication) {
-        return ResponseEntity.ok(jobService.togglePromotion(authentication.getName(), id));
-    }
+
 
     @PreAuthorize("hasRole('EMPLOYER')")
     @DeleteMapping("/employer/jobs/{id}")

@@ -24,6 +24,7 @@ import AdminCompanies from './pages/admin/AdminCompanies';
 import AdminJobs from './pages/admin/AdminJobs';
 import AdminCategories from './pages/admin/AdminCategories';
 import AdminReports from './pages/admin/AdminReports';
+import AdminPromotionPackages from './pages/admin/AdminPromotionPackages';
 import CandidateDashboard from './pages/candidate/Dashboard';
 import CandidateAppliedJobs from './pages/candidate/AppliedJobs';
 import CandidateProfile from './pages/candidate/Profile';
@@ -38,24 +39,30 @@ import ChangePassword from './pages/ChangePassword';
 import AIScanner from './pages/AIScanner';
 import Footer from './components/Footer';
 import ViewOnlineCV from './pages/employer/ViewOnlineCV';
+import PaymentResult from './pages/PaymentResult';
+import HotJobs from './pages/HotJobs';
+
+import VnpaySimulator from './components/VnpaySimulator';
 
 const AppContent = () => {
   const location = useLocation();
   const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
+  const isSimulator = location.pathname === '/vnpay-simulator';
 
   return (
     <div className="min-h-screen w-full bg-slate-50 flex flex-col font-sans selection:bg-brand-100 selection:text-brand-900 overflow-x-hidden">
       <Toaster position="top-right" />
       
-      {!isAuthPage && <Navbar />}
+      {!isAuthPage && !isSimulator && <Navbar />}
       
-      <main className={`flex-grow w-[90%] mx-auto flex flex-col ${!isAuthPage ? 'pt-0' : ''}`}>
+      <main className={`flex-grow w-[90%] mx-auto flex flex-col ${!isAuthPage && !isSimulator ? 'pt-0' : ''}`}>
         <div className="w-full">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/jobs" element={<JobSearch />} />
+            <Route path="/hot-jobs" element={<HotJobs />} />
             <Route path="/jobs/:id" element={<JobDetail />} />
             <Route path="/candidates" element={<Candidates />} />
             <Route path="/opportunities" element={<Opportunities />} />
@@ -136,12 +143,15 @@ const AppContent = () => {
             <Route path="/admin/jobs" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminJobs /></ProtectedRoute>} />
             <Route path="/admin/categories" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminCategories /></ProtectedRoute>} />
             <Route path="/admin/reports" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminReports /></ProtectedRoute>} />
+            <Route path="/admin/promotion-packages" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminPromotionPackages /></ProtectedRoute>} />
             
             <Route path="/messages" element={<Chat />} />
             <Route path="/notifications" element={<NotificationsPage />} />
             <Route path="/change-password" element={<ChangePassword />} />
             <Route path="/ai-scanner" element={<AIScanner />} />
             <Route path="/ads" element={<AdsPage />} />
+            <Route path="/payment-result" element={<PaymentResult />} />
+            <Route path="/vnpay-simulator" element={<VnpaySimulator />} />
             <Route path="*" element={
               <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
                 <h1 className="text-4xl font-bold text-slate-900 mb-2 tracking-tighter">404</h1>
@@ -153,7 +163,7 @@ const AppContent = () => {
         </div>
       </main>
       
-      {!isAuthPage && <Footer />}
+      {!isAuthPage && !isSimulator && <Footer />}
     </div>
   );
 };

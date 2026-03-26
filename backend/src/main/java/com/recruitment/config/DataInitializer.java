@@ -1,39 +1,45 @@
 package com.recruitment.config;
 
-import com.recruitment.entity.Role;
-import com.recruitment.entity.User;
-import com.recruitment.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.recruitment.entity.PromotionPackage;
+import com.recruitment.repository.PromotionPackageRepository;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-@Component
-public class DataInitializer implements CommandLineRunner {
+@Configuration
+public class DataInitializer {
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Override
-    public void run(String... args) throws Exception {
-        
-        String adminEmail = "admin@gmail.com";
-        if (!userRepository.existsByEmail(adminEmail)) {
-            User admin = User.builder()
-                    .email(adminEmail)
-                    .fullName("System Administrator")
-                    .password(passwordEncoder.encode("0905622341luan"))
-                    .role(Role.ADMIN)
-                    .active(true)
-                    .build();
-
-            userRepository.save(admin);
-            System.out.println(">>> Đã tạo tài khoản Admin mặc định: " + adminEmail);
-        } else {
-            System.out.println(">>> Tài khoản Admin đã tồn tại.");
-        }
+    @Bean
+    public CommandLineRunner initPromotionData(PromotionPackageRepository repo) {
+        return args -> {
+            try {
+                if (repo.count() == 0) {
+                    repo.save(PromotionPackage.builder()
+                        .name("Gói Tuần")
+                        .days(7)
+                        .amount(50000L)
+                        .description("Cơ bản")
+                        .active(true)
+                        .build());
+                    repo.save(PromotionPackage.builder()
+                        .name("Gói 15 Ngày")
+                        .days(15)
+                        .amount(100000L)
+                        .description("Phổ biến")
+                        .active(true)
+                        .build());
+                    repo.save(PromotionPackage.builder()
+                        .name("Gói Tháng")
+                        .days(30)
+                        .amount(200000L)
+                        .description("Tiết kiệm 20%")
+                        .active(true)
+                        .build());
+                    System.out.println("Seeded initial promotion packages.");
+                }
+            } catch (Exception e) {
+                System.err.println("Database seeding failed: " + e.getMessage());
+            }
+        };
     }
 }

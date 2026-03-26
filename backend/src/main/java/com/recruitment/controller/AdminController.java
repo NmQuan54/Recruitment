@@ -34,6 +34,9 @@ public class AdminController {
     @Autowired
     private JobRepository jobRepository;
 
+    @Autowired
+    private com.recruitment.repository.PaymentTransactionRepository paymentTransactionRepository;
+
     
     @GetMapping("/companies")
     @PreAuthorize("hasRole('ADMIN')")
@@ -142,13 +145,21 @@ public class AdminController {
     @GetMapping("/stats")
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional(readOnly = true)
-    public ResponseEntity<Map<String, Long>> getSystemStats() {
+    public ResponseEntity<Map<String, Object>> getSystemStats() {
         try {
-            Map<String, Long> stats = new HashMap<>();
+            Map<String, Object> stats = new HashMap<>();
             stats.put("totalUsers", userRepository.count());
             stats.put("totalCompanies", companyRepository.count());
             stats.put("totalJobs", jobRepository.count());
             stats.put("totalCategories", categoryRepository.count());
+            
+            // Calculate total revenue from SUCCESS transactions
+            Long totalRevenue = paymentTransactionRepository.findAll().stream()
+                    .filter(t -> "SUCCESS".equals(t.getStatus()))
+                    .mapToLong(t -> t.getAmount())
+                    .sum();
+            stats.put("totalRevenue", totalRevenue);
+            
             return ResponseEntity.ok(stats);
         } catch (Exception e) {
             e.printStackTrace();

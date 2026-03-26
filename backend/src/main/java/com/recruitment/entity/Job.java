@@ -51,12 +51,20 @@ public class Job {
     @Column(name = "salary_max")
     private BigDecimal salaryMax;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private JobStatus status;
+    private JobStatus status = JobStatus.ACTIVE;
 
+    @Builder.Default
     @Column(name = "is_promoted")
     private boolean isPromoted = false;
+
+    @Column(name = "promotion_expiry")
+    private LocalDateTime promotionExpiry;
+
+    @Column(name = "promotion_package_name")
+    private String promotionPackageName;
 
     private LocalDate deadline;
 

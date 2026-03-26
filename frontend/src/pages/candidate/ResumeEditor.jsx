@@ -241,7 +241,7 @@ const ResumeEditor = () => {
     <div className="w-full px-4 pt-32 pb-20">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
         <div>
-          <h1 className="text-4xl font-bold text-slate-900 mb-2 tracking-tight">Hồ sơ chuyên nghiệp</h1>
+          <h1 className="text-4xl font-bold text-slate-900 mb-2 tracking-tight">Hồ sơ cá nhân</h1>
           <p className="text-slate-500 font-bold">Cập nhật thông tin chi tiết về kinh nghiệm và học vấn của bạn</p>
         </div>
         <button 

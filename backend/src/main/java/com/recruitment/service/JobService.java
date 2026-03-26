@@ -52,6 +52,10 @@ public class JobService {
                 pageable);
     }
 
+    public Page<Job> getPromotedJobs(Pageable pageable) {
+        return jobRepository.findPromotedJobs(pageable);
+    }
+
     public Job getJobById(Long id) {
         return jobRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy công việc với id: " + id));

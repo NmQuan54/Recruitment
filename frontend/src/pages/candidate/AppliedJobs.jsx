@@ -22,10 +22,22 @@ import { toast } from 'react-hot-toast';
 const CandidateAppliedJobs = () => {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [bookingAppId, setBookingAppId] = useState(null);
+  const [availableSlots, setAvailableSlots] = useState([]);
+  const [bookingLoading, setBookingLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchApplications();
+    
+    // Check for bookingId in URL to auto-open booking modal
+    const params = new URLSearchParams(window.location.search);
+    const bookingId = params.get('bookingId');
+    if (bookingId) {
+      handleOpenBooking(bookingId);
+      // Clean up the URL
+      window.history.replaceState({}, '', window.location.pathname);
+    }
   }, []);
 
   const fetchApplications = async () => {
@@ -36,6 +48,31 @@ const CandidateAppliedJobs = () => {
       toast.error('Không thể tải danh sách việc làm đã ứng tuyển');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleOpenBooking = async (appId) => {
+    setBookingAppId(appId);
+    setBookingLoading(true);
+    try {
+      const res = await api.get(`/candidate/applications/${appId}/slots`);
+      setAvailableSlots(res.data);
+    } catch (error) {
+      toast.error('Không thể tải lịch phỏng vấn');
+      setBookingAppId(null);
+    } finally {
+      setBookingLoading(false);
+    }
+  };
+
+  const handleBookSlot = async (slotId) => {
+    try {
+      await api.post(`/candidate/slots/${slotId}/book`);
+      toast.success('Đã xác nhận lịch phỏng vấn!');
+      setBookingAppId(null);
+      fetchApplications(); // Refresh to show the booked date
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Lỗi khi đặt lịch');
     }
   };
 
@@ -118,11 +155,46 @@ const CandidateAppliedJobs = () => {
                         </div>
                      </div>
 
+                     {app.status === 'INTERVIEW' && !app.interviewDate && (
+                        <div className="bg-brand-50 p-6 rounded-[2rem] border-2 border-brand-100 mb-8 relative group cursor-pointer hover:bg-brand-100 transition-all"
+                             onClick={() => handleOpenBooking(app.id)}>
+                           <div className="flex items-center justify-between gap-4">
+                              <div className="flex-1 min-w-0">
+                                 <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-600 mb-2">Đề xuất phỏng vấn</h4>
+                                 <p className="text-slate-900 font-bold block truncate">Nhà tuyển dụng đã đề xuất các khung giờ. Vui lòng chọn lịch phù hợp.</p>
+                              </div>
+                              <button className="whitespace-nowrap bg-brand-600 text-white px-6 py-3 rounded-xl font-bold text-sm shadow-lg shadow-brand-200 group-hover:scale-105 transition">
+                                 Chọn lịch ngay
+                              </button>
+                           </div>
+                        </div>
+                     )}
+
                      {app.status === 'INTERVIEW' && app.interviewDate && (
-                        <div className="bg-brand-600 p-6 rounded-[2rem] text-white mb-8 shadow-xl shadow-brand-100 animate-pulse-slow">
-                           <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] mb-2 opacity-80">Thông báo phỏng vấn</h4>
-                           <p className="text-lg font-bold mb-1">Thời gian: {new Date(app.interviewDate).toLocaleString('vi-VN')}</p>
-                           {app.interviewNotes && <p className="text-sm font-bold opacity-90">"{app.interviewNotes}"</p>}
+                        <div className="inline-flex flex-col bg-brand-600 p-6 rounded-[2.5rem] text-white mb-8 shadow-xl shadow-brand-100 relative overflow-hidden group">
+                           {}
+                           <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-10 -mt-10 blur-2xl group-hover:bg-white/20 transition-all"></div>
+                           
+                           <div className="flex items-center gap-4 relative z-10">
+                              <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-md">
+                                 <Calendar size={22} className="animate-pulse" />
+                              </div>
+                              <div>
+                                 <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] mb-1 opacity-70">Lịch phỏng vấn chính thức</h4>
+                                 <p className="text-xl font-black tracking-tight leading-none italic">
+                                    {new Date(app.interviewDate).toLocaleString('vi-VN', { 
+                                       hour: '2-digit', minute: '2-digit', 
+                                       day: '2-digit', month: '2-digit', year: 'numeric' 
+                                    })}
+                                 </p>
+                              </div>
+                           </div>
+                           {app.interviewNotes && (
+                              <div className="mt-4 pt-4 border-t border-white/10 text-xs font-bold opacity-90 italic flex items-start gap-2 max-w-sm">
+                                 <MessageSquare size={12} className="shrink-0 mt-0.5" />
+                                 "{app.interviewNotes}"
+                              </div>
+                           )}
                         </div>
                      )}
 
@@ -178,6 +250,55 @@ const CandidateAppliedJobs = () => {
           </div>
         )}
       </div>
+      {bookingAppId && (
+        <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[100] flex items-start justify-center p-4 overflow-y-auto pt-20 pb-20">
+          <div className="bg-white rounded-[3rem] w-full max-w-xl p-10 animate-in fade-in zoom-in duration-300 shadow-2xl relative mt-auto mb-auto">
+            <h2 className="text-3xl font-bold text-slate-900 mb-2 font-display">Chọn lịch phỏng vấn</h2>
+            <p className="text-slate-500 font-medium mb-8">Vui lòng chọn 1 khung giờ phù hợp nhất với bạn.</p>
+
+            {bookingLoading ? (
+              <div className="py-20 flex flex-col items-center">
+                <Loader2 className="animate-spin text-brand-600 mb-4" size={40} />
+                <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">Đang tải lịch...</p>
+              </div>
+            ) : availableSlots.length > 0 ? (
+              <div className="grid gap-4 max-h-[50vh] overflow-y-auto pr-2 mb-8">
+                {availableSlots.map((slot) => (
+                  <button 
+                    key={slot.id}
+                    onClick={() => handleBookSlot(slot.id)}
+                    className="flex items-center justify-between p-6 bg-slate-50 border-2 border-transparent hover:border-brand-500 hover:bg-white rounded-3xl transition group"
+                  >
+                    <div className="text-left">
+                      <div className="flex items-center gap-2 text-brand-600 font-bold mb-1">
+                        <Calendar size={16} />
+                        {new Date(slot.startTime).toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                      </div>
+                      <div className="text-slate-900 font-black text-xl font-mono">
+                        {new Date(slot.startTime).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })} - {new Date(slot.endTime).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
+                      </div>
+                    </div>
+                    <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-slate-200 group-hover:bg-brand-600 group-hover:text-white shadow-sm transition">
+                      <ChevronRight size={24} />
+                    </div>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="py-20 text-center bg-slate-50 rounded-[2rem] border-2 border-dashed border-slate-200 mb-8">
+                <p className="text-slate-400 font-bold">Hiện không có khung giờ nào trống.</p>
+              </div>
+            )}
+
+            <button 
+              onClick={() => setBookingAppId(null)}
+              className="w-full py-4 bg-slate-100 text-slate-500 rounded-2xl font-bold hover:bg-slate-200 transition"
+            >
+              Hủy bỏ
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

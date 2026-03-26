@@ -30,6 +30,7 @@ import {
   CreditCard,
   PlusCircle,
   Sparkles,
+  Zap,
 } from 'lucide-react';
 
 const Navbar = () => {
@@ -48,21 +49,21 @@ const Navbar = () => {
     setMenuOpen(false);
   };
 
-  
+
   useEffect(() => {
     if (!user) { setUnreadCount(0); return; }
     const fetchUnread = async () => {
       try {
         const res = await api.get('/notifications/unread-count');
         setUnreadCount(res.data.count || 0);
-      } catch (_) {}
+      } catch (_) { }
     };
     fetchUnread();
     const interval = setInterval(fetchUnread, 30000);
     return () => clearInterval(interval);
   }, [user]);
 
-  
+
   useEffect(() => {
     if (!user) { setUnreadChatCount(0); return; }
     const fetchUnreadChat = async () => {
@@ -70,14 +71,14 @@ const Navbar = () => {
         const res = await api.get('/chat/rooms/unread-counts');
         const total = Object.values(res.data).reduce((sum, c) => sum + (c || 0), 0);
         setUnreadChatCount(total);
-      } catch (_) {}
+      } catch (_) { }
     };
     fetchUnreadChat();
     const interval = setInterval(fetchUnreadChat, 15000);
     return () => clearInterval(interval);
   }, [user]);
 
-  
+
   useEffect(() => {
     const handler = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
@@ -88,15 +89,16 @@ const Navbar = () => {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  
+
   const guestNavItems = [
     { label: 'Trang chủ', path: '/', icon: Home },
     { label: 'Tìm việc làm', path: '/jobs', icon: Search },
+    { label: 'Ưa chuộng', path: '/hot-jobs', icon: Zap },
     { label: 'Quét CV AI', path: '/ai-scanner', icon: Sparkles },
     { label: 'Công ty', path: '/companies', icon: Building2 },
   ];
 
-  
+
   const adminMenuItems = [
     { label: 'Dashboard', path: '/admin', icon: LayoutDashboard },
     { label: 'Quản lý người dùng', path: '/admin/users', icon: Users },
@@ -107,11 +109,12 @@ const Navbar = () => {
     { label: 'Đổi mật khẩu', path: '/change-password', icon: KeyRound },
   ];
 
-  
+
   const employerMenuItems = [
     { label: 'Bảng điều khiển', path: '/employer/dashboard', icon: LayoutDashboard },
     { label: 'Đăng tin mới', path: '/employer/post-job', icon: PlusCircle },
     { label: 'Tin đã đăng', path: '/employer/jobs', icon: Briefcase },
+    { label: 'Dịch vụ quảng cáo', path: '/employer/jobs', icon: Zap },
     { label: 'Danh sách ứng tuyển', path: '/employer/applications', icon: UserCheck },
     { label: 'Tìm ứng viên', path: '/candidates', icon: Users },
     { label: 'Tin nhắn/Chat', path: '/messages', icon: MessageSquare },
@@ -119,14 +122,12 @@ const Navbar = () => {
     { label: 'Đổi mật khẩu', path: '/change-password', icon: KeyRound },
   ];
 
-  
+
   const candidateMenuItems = [
     { label: 'Dashboard', path: '/candidate/dashboard', icon: LayoutDashboard },
-    { label: 'Quản lý CV', path: '/candidate/resume', icon: FileText },
     { label: 'Việc làm đã lưu', path: '/candidate/saved-jobs', icon: BookmarkCheck },
     { label: 'Việc làm đã ứng tuyển', path: '/candidate/applied-jobs', icon: Send },
     { label: 'Tin nhắn/Chat', path: '/messages', icon: MessageSquare },
-    { label: 'Thông tin cá nhân', path: '/candidate/profile', icon: User },
     { label: 'Đổi mật khẩu', path: '/change-password', icon: KeyRound },
   ];
 
@@ -138,7 +139,7 @@ const Navbar = () => {
   };
 
   const menuItems = getMenuItems();
-  const navItems = user ? guestNavItems : guestNavItems; 
+  const navItems = user ? guestNavItems : guestNavItems;
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-[100] px-4 py-6">
@@ -148,7 +149,7 @@ const Navbar = () => {
           animate={{ y: 0, opacity: 1 }}
           className="bg-brand-600/90 backdrop-blur-xl rounded-[2.5rem] border border-white/20 shadow-[0_20px_50px_rgba(37,99,235,0.2)] h-20 px-6 lg:px-10 flex justify-between items-center transition-all duration-500"
         >
-          {}
+          { }
           <div className="flex items-center gap-6 xl:gap-12">
             <Link to="/" className="flex items-center group shrink-0">
               <motion.img
@@ -159,7 +160,7 @@ const Navbar = () => {
               />
             </Link>
 
-            {}
+            { }
             <div className="hidden lg:flex items-center gap-1 xl:gap-3">
               {navItems.map((item) => (
                 <Link
@@ -192,11 +193,11 @@ const Navbar = () => {
             </div>
           </div>
 
-          {}
+          { }
           <div className="flex items-center gap-3">
             {user ? (
               <div className="flex items-center gap-3 pl-6 border-l border-white/10">
-                {}
+                { }
                 <Link
                   to="/notifications"
                   className="relative p-3 bg-white/10 text-white rounded-2xl hover:bg-white/20 transition border border-white/5"
@@ -210,7 +211,7 @@ const Navbar = () => {
                   )}
                 </Link>
 
-                {}
+                { }
                 <div className="relative" ref={menuRef}>
                   <button
                     onClick={() => setMenuOpen(!menuOpen)}
@@ -243,7 +244,7 @@ const Navbar = () => {
                         <div className="p-2">
                           {menuItems.map((item) => (
                             <Link
-                              key={item.path}
+                              key={item.label}
                               to={item.path}
                               onClick={() => setMenuOpen(false)}
                               className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-700 hover:bg-brand-50 hover:text-brand-600 rounded-2xl transition"

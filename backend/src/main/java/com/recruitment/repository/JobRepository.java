@@ -16,6 +16,9 @@ import java.util.List;
 public interface JobRepository extends JpaRepository<Job, Long> {
 
         Page<Job> findByStatus(JobStatus status, Pageable pageable);
+        
+        @Query("SELECT j FROM Job j WHERE j.status = 'ACTIVE' AND j.isPromoted = true ORDER BY j.createdAt DESC")
+        Page<Job> findPromotedJobs(Pageable pageable);
 
         List<Job> findByCompanyIdOrderByCreatedAtDesc(Long companyId);
 
@@ -27,7 +30,7 @@ public interface JobRepository extends JpaRepository<Job, Long> {
                         @Param("location") String location,
                         Pageable pageable);
 
-        @Query("SELECT j FROM Job j LEFT JOIN j.categories c WHERE j.status = 'ACTIVE' " +
+        @Query("SELECT DISTINCT j FROM Job j LEFT JOIN j.categories c WHERE j.status = 'ACTIVE' " +
                         "AND (:keyword IS NULL OR :keyword = '' OR LOWER(j.title) LIKE LOWER(CONCAT('%', :keyword, '%')) "
                         +
                         "   OR LOWER(j.description) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +

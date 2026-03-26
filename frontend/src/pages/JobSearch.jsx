@@ -56,8 +56,9 @@ const JobSearch = () => {
         jobType: filters.jobType || undefined,
         salaryMin: selectedRange?.min ?? undefined,
         salaryMax: selectedRange?.max ?? undefined,
+        categoryId: filters.categoryId || undefined,
         page,
-        size: 4,
+        size: 12,
       };
 
       const response = await api.get('/jobs', { params });
@@ -99,7 +100,7 @@ const JobSearch = () => {
   const handleClearFilters = () => {
     setTempKeyword('');
     setTempLocation('');
-    setFilters({ keyword: '', location: '', jobType: '', salaryRangeId: '' });
+    setFilters({ keyword: '', location: '', jobType: '', salaryRangeId: '', categoryId: '' });
   };
 
   const hasActiveFilters = filters.keyword || filters.location || filters.jobType || filters.salaryRangeId;

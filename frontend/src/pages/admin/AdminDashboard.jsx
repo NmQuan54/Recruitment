@@ -13,7 +13,8 @@ import {
   Bell,
   Search,
   Plus,
-  Loader2
+  Loader2,
+  Zap
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
@@ -57,7 +58,8 @@ const AdminDashboard = () => {
     { label: 'Doanh nghiệp', path: '/admin/companies', icon: <Building2 size={24} />, count: stats?.totalCompanies || 0, color: 'text-purple-600', bg: 'bg-purple-50', desc: 'Kiểm duyệt & Thông tin công ty' },
     { label: 'Việc làm', path: '/admin/jobs', icon: <Briefcase size={24} />, count: stats?.totalJobs || 0, color: 'text-emerald-600', bg: 'bg-emerald-50', desc: 'Giám sát tin đăng tuyển dụng' },
     { label: 'Danh mục', path: '/admin/categories', icon: <ListFilter size={24} />, count: stats?.totalCategories || 0, color: 'text-amber-600', bg: 'bg-amber-50', desc: 'Cấu hình ngành nghề hệ thống' },
-    { label: 'Báo cáo', path: '/admin/reports', icon: <TrendingUp size={24} />, count: 'LIVE', color: 'text-rose-600', bg: 'bg-rose-50', desc: 'Thống kê & Hiệu suất nền tảng' },
+    { label: 'Doanh thu', path: '/admin/reports', icon: <TrendingUp size={24} />, count: (stats?.totalRevenue || 0).toLocaleString() + ' đ', color: 'text-rose-600', bg: 'bg-rose-50', desc: 'Tổng thu nhập từ các gói đẩy tin' },
+    { label: 'Gói quảng cáo', path: '/admin/promotion-packages', icon: <Zap size={24} />, count: 'NEW', color: 'text-brand-600', bg: 'bg-brand-50', desc: 'Quản lý các gói đẩy tin tuyển dụng' },
   ];
 
   return (

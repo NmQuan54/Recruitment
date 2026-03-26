@@ -125,33 +125,53 @@ const PostJob = () => {
            </div>
 
            <div className="grid md:grid-cols-2 gap-8">
-              <div className="space-y-2">
-                 <label className="text-sm font-bold text-slate-700 ml-1 uppercase tracking-wider">Mức lương tối thiểu</label>
-                 <div className="relative">
-                    <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+              <div className="space-y-4">
+                 <label className="text-sm font-bold text-slate-700 ml-1 uppercase tracking-wider text-brand-600">Lương tối thiểu (VNĐ)</label>
+                 <div className="relative group">
+                    <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-brand-500 transition-colors" size={20} />
                     <input
                       type="number"
                       required
-                      placeholder="VNĐ"
-                      className="w-full pl-12 pr-4 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-brand-500 transition font-bold"
+                      placeholder="VD: 10000000"
+                      className="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:border-brand-500 focus:bg-white transition-all font-bold text-lg"
                       value={formData.salaryMin}
                       onChange={(e) => setFormData({ ...formData, salaryMin: e.target.value })}
                     />
                  </div>
+                 {formData.salaryMin && (
+                    <div className="ml-2 text-brand-600 font-black text-sm animate-in fade-in slide-in-from-left-2 transition-all">
+                       ≈ {(() => {
+                          const v = parseFloat(formData.salaryMin);
+                          if (v >= 1e9) return (v / 1e9).toLocaleString('vi-VN', { maximumFractionDigits: 2 }) + ' Tỷ VNĐ';
+                          if (v >= 1e6) return (v / 1e6).toLocaleString('vi-VN', { maximumFractionDigits: 1 }) + ' Triệu VNĐ';
+                          return v.toLocaleString('vi-VN') + ' VNĐ';
+                       })()}
+                    </div>
+                 )}
               </div>
-              <div className="space-y-2">
-                 <label className="text-sm font-bold text-slate-700 ml-1 uppercase tracking-wider">Mức lương tối đa</label>
-                 <div className="relative">
-                    <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+              <div className="space-y-4">
+                 <label className="text-sm font-bold text-slate-700 ml-1 uppercase tracking-wider text-brand-600">Lương tối đa (VNĐ)</label>
+                 <div className="relative group">
+                    <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-brand-500 transition-colors" size={20} />
                     <input
                       type="number"
                       required
-                      placeholder="VNĐ"
-                      className="w-full pl-12 pr-4 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-brand-500 transition font-bold"
+                      placeholder="VD: 25000000"
+                      className="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:border-brand-500 focus:bg-white transition-all font-bold text-lg"
                       value={formData.salaryMax}
                       onChange={(e) => setFormData({ ...formData, salaryMax: e.target.value })}
                     />
                  </div>
+                 {formData.salaryMax && (
+                    <div className="ml-2 text-brand-600 font-black text-sm animate-in fade-in slide-in-from-left-2 transition-all">
+                       ≈ {(() => {
+                          const v = parseFloat(formData.salaryMax);
+                          if (v >= 1e9) return (v / 1e9).toLocaleString('vi-VN', { maximumFractionDigits: 2 }) + ' Tỷ VNĐ';
+                          if (v >= 1e6) return (v / 1e6).toLocaleString('vi-VN', { maximumFractionDigits: 1 }) + ' Triệu VNĐ';
+                          return v.toLocaleString('vi-VN') + ' VNĐ';
+                       })()}
+                    </div>
+                 )}
               </div>
            </div>
 

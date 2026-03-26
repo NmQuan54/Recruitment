@@ -13,9 +13,24 @@ const JOB_TYPE_LABELS = {
 
 const formatSalary = (min, max) => {
   if (!min && !max) return 'Thỏa thuận';
-  if (min && max) return `${(min / 1e6).toFixed(0)} - ${(max / 1e6).toFixed(0)} Tr`;
-  if (min) return `Từ ${(min / 1e6).toFixed(0)} Tr`;
-  return `Đến ${(max / 1e6).toFixed(0)} Tr`;
+  
+  const formatValue = (value) => {
+    if (!value) return '';
+    if (value >= 1e9) {
+      return (value / 1e9).toLocaleString('vi-VN', { maximumFractionDigits: 1 }) + ' Tỷ';
+    }
+    if (value >= 1e6) {
+      return (value / 1e6).toLocaleString('vi-VN', { maximumFractionDigits: 0 }) + ' Triệu';
+    }
+    return value.toLocaleString('vi-VN') + ' VND';
+  };
+
+  if (min && max) {
+    // If both are Millions or both are Billions, use a cleaner range
+    return `${formatValue(min)} - ${formatValue(max)}`;
+  }
+  if (min) return `Từ ${formatValue(min)}`;
+  return `Đến ${formatValue(max)}`;
 };
 
 const JobCard = ({ job, initialSaved = false }) => {
