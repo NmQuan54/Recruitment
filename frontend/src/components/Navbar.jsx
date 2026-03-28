@@ -116,7 +116,6 @@ const Navbar = () => {
     { label: 'Tin đã đăng', path: '/employer/jobs', icon: Briefcase },
     { label: 'Dịch vụ quảng cáo', path: '/employer/jobs', icon: Zap },
     { label: 'Danh sách ứng tuyển', path: '/employer/applications', icon: UserCheck },
-    { label: 'Tìm ứng viên', path: '/candidates', icon: Users },
     { label: 'Tin nhắn/Chat', path: '/messages', icon: MessageSquare },
     { label: 'Hồ sơ công ty', path: '/employer/company', icon: ShieldCheck },
     { label: 'Đổi mật khẩu', path: '/change-password', icon: KeyRound },

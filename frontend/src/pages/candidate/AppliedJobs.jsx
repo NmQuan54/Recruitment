@@ -15,7 +15,8 @@ import {
   MessageSquare,
   FileText,
   CheckCircle,
-  XCircle
+  XCircle,
+  X
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
@@ -251,8 +252,14 @@ const CandidateAppliedJobs = () => {
         )}
       </div>
       {bookingAppId && (
-        <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[100] flex items-start justify-center p-4 overflow-y-auto pt-20 pb-20">
+        <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[1000] flex items-start justify-center p-4 overflow-y-auto pt-20 pb-20 no-scrollbar">
           <div className="bg-white rounded-[3rem] w-full max-w-xl p-10 animate-in fade-in zoom-in duration-300 shadow-2xl relative mt-auto mb-auto">
+            <button 
+              onClick={() => setBookingAppId(null)}
+              className="absolute top-8 right-8 p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition"
+            >
+              <X size={24} />
+            </button>
             <h2 className="text-3xl font-bold text-slate-900 mb-2 font-display">Chọn lịch phỏng vấn</h2>
             <p className="text-slate-500 font-medium mb-8">Vui lòng chọn 1 khung giờ phù hợp nhất với bạn.</p>
 
@@ -272,7 +279,14 @@ const CandidateAppliedJobs = () => {
                     <div className="text-left">
                       <div className="flex items-center gap-2 text-brand-600 font-bold mb-1">
                         <Calendar size={16} />
-                        {new Date(slot.startTime).toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                        {(() => {
+                           const start = new Date(slot.startTime);
+                           const end = new Date(slot.endTime);
+                           const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                           const sStr = start.toLocaleDateString('vi-VN', options);
+                           const eStr = end.toLocaleDateString('vi-VN', options);
+                           return sStr === eStr ? sStr : `${sStr} - ${eStr}`;
+                        })()}
                       </div>
                       <div className="text-slate-900 font-black text-xl font-mono">
                         {new Date(slot.startTime).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })} - {new Date(slot.endTime).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}

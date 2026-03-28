@@ -31,7 +31,6 @@ import CandidateProfile from './pages/candidate/Profile';
 import SavedJobs from './pages/candidate/SavedJobs';
 import ResumeEditor from './pages/candidate/ResumeEditor';
 import Chat from './pages/Chat';
-import Candidates from './pages/Candidates';
 import Opportunities from './pages/Opportunities';
 import AdsPage from './pages/Ads';
 import NotificationsPage from './pages/Notifications';
@@ -64,7 +63,6 @@ const AppContent = () => {
             <Route path="/jobs" element={<JobSearch />} />
             <Route path="/hot-jobs" element={<HotJobs />} />
             <Route path="/jobs/:id" element={<JobDetail />} />
-            <Route path="/candidates" element={<Candidates />} />
             <Route path="/opportunities" element={<Opportunities />} />
             <Route path="/companies" element={<Companies />} />
             <Route path="/companies/:id" element={<CompanyDetail />} />

@@ -15,7 +15,8 @@ import {
   Loader2,
   Calendar,
   MessageSquare,
-  ExternalLink
+  ExternalLink,
+  X
 } from 'lucide-react';
 
 const JobApplicants = () => {
@@ -46,6 +47,58 @@ const JobApplicants = () => {
   const [schedulingApp, setSchedulingApp] = useState(null);
   const [slots, setSlots] = useState([{ startTime: '', endTime: '' }]);
   const [interviewNotes, setInterviewNotes] = useState('');
+  const [drafts, setDrafts] = useState({}); // Stores drafts per application ID: { appId: { slots, notes } }
+
+  // Sync draft whenever slots or notes change
+  useEffect(() => {
+    if (schedulingApp) {
+      setDrafts(prev => ({
+        ...prev,
+        [schedulingApp]: { slots, notes: interviewNotes }
+      }));
+    }
+  }, [slots, interviewNotes, schedulingApp]);
+
+  // Fetch or restore from draft when opening modal
+  useEffect(() => {
+    if (schedulingApp) {
+      // 1. Use draft if available
+      if (drafts[schedulingApp]) {
+        setSlots(drafts[schedulingApp].slots);
+        setInterviewNotes(drafts[schedulingApp].notes);
+        return;
+      }
+
+      // 2. Otherwise load from applications list (for notes)
+      const app = applications.find(a => a.id === schedulingApp);
+      if (app) setInterviewNotes(app.interviewNotes || '');
+      
+      // 3. And fetch slots from server
+      const fetchExistingSlots = async () => {
+        try {
+          const res = await api.get(`/employer/applications/${schedulingApp}/slots`);
+          if (res.data && res.data.length > 0) {
+            const formatted = res.data.map(s => {
+              const dStart = new Date(s.startTime);
+              const dEnd = new Date(s.endTime);
+              const tzOffset = dStart.getTimezoneOffset() * 60000;
+              return {
+                startTime: new Date(dStart.getTime() - tzOffset).toISOString().slice(0, 16),
+                endTime: new Date(dEnd.getTime() - tzOffset).toISOString().slice(0, 16)
+              };
+            });
+            setSlots(formatted);
+          } else {
+            setSlots([{ startTime: '', endTime: '' }]);
+          }
+        } catch (error) {
+          console.error('Error fetching slots:', error);
+          setSlots([{ startTime: '', endTime: '' }]);
+        }
+      };
+      fetchExistingSlots();
+    }
+  }, [schedulingApp, applications]);
 
   const [feedbackApp, setFeedbackApp] = useState(null); // { appId, status }
   const [feedbackContent, setFeedbackContent] = useState('');
@@ -58,22 +111,24 @@ const JobApplicants = () => {
         return;
       }
       
-      await api.post(`/employer/applications/${schedulingApp}/slots`, validSlots);
+      await api.post(`/employer/applications/${schedulingApp}/slots`, {
+        slots: validSlots,
+        notes: interviewNotes
+      });
       
       // Also update application status to REVIEWING or handle a specific status if needed
       // Actually the service already handles notification. 
       // Let's also update the local state.
       setApplications(prev => prev.map(app => 
-        app.id === schedulingApp ? { ...app, status: 'REVIEWING' } : app
+        app.id === schedulingApp ? { ...app, status: 'REVIEWING', interviewNotes: interviewNotes } : app
       ));
       
       toast.success('Đã gửi các khung giờ phỏng vấn cho ứng viên!');
       setSchedulingApp(null);
-      setSlots([{ startTime: '', endTime: '' }]);
-      setInterviewNotes('');
     } catch (error) {
       console.error('Error scheduling interview:', error);
-      toast.error('Lỗi khi gửi khung giờ phỏng vấn');
+      const errorMsg = error.response?.data?.message || 'Lỗi khi gửi khung giờ phỏng vấn';
+      toast.error(errorMsg);
     }
   };
 
@@ -210,6 +265,32 @@ const JobApplicants = () => {
                </div>
 
                <div className="space-y-6">
+                  {app.interviewDate && (
+                    <div className="bg-brand-600 p-6 rounded-[2rem] text-white shadow-xl shadow-brand-100 relative overflow-hidden group">
+                       <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-10 -mt-10 blur-2xl group-hover:bg-white/20 transition-all"></div>
+                       <div className="flex items-center gap-4 relative z-10">
+                          <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-md">
+                             <Calendar size={22} className="animate-pulse" />
+                          </div>
+                          <div>
+                             <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] mb-1 opacity-70">Lịch phỏng vấn chính thức</h4>
+                             <p className="text-xl font-black tracking-tight leading-none italic">
+                                {new Date(app.interviewDate).toLocaleString('vi-VN', { 
+                                   hour: '2-digit', minute: '2-digit', 
+                                   day: '2-digit', month: '2-digit', year: 'numeric' 
+                                })}
+                             </p>
+                          </div>
+                       </div>
+                       {app.interviewNotes && (
+                        <div className="mt-4 pt-4 border-t border-white/10 text-xs font-bold opacity-90 italic flex items-start gap-2 max-w-sm">
+                           <MessageSquare size={12} className="shrink-0 mt-0.5" />
+                           "{app.interviewNotes}"
+                        </div>
+                       )}
+                    </div>
+                  )}
+
                   <div>
                      <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 ">Thư giới thiệu</h4>
                      <p className="text-slate-700 font-medium leading-relaxed bg-slate-50 p-6 rounded-2xl ">
@@ -268,10 +349,15 @@ const JobApplicants = () => {
           </div>
         )}
       </div>
-
       {schedulingApp && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-[2.5rem] w-full max-w-2xl p-10 animate-in fade-in zoom-in duration-300 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[1000] flex items-center justify-center p-4">
+          <div className="bg-white rounded-[2.5rem] w-full max-w-2xl p-10 animate-in fade-in zoom-in duration-300 max-h-[90vh] overflow-y-auto no-scrollbar relative">
+            <button 
+              onClick={() => setSchedulingApp(null)}
+              className="absolute top-8 right-8 p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition"
+            >
+              <X size={24} />
+            </button>
             <h2 className="text-3xl font-bold text-slate-900 mb-6 font-display">Gửi các khung giờ phỏng vấn</h2>
             <p className="text-slate-500 font-medium mb-8">Ứng viên sẽ chọn 1 trong các khung giờ bạn đề xuất.</p>
             
@@ -330,7 +416,6 @@ const JobApplicants = () => {
                 <button 
                   onClick={() => {
                     setSchedulingApp(null);
-                    setSlots([{ startTime: '', endTime: '' }]);
                   }}
                   className="flex-1 px-8 py-4 bg-slate-100 text-slate-500 rounded-2xl font-bold hover:bg-slate-200 transition"
                 >
@@ -349,8 +434,14 @@ const JobApplicants = () => {
       )}
 
       {feedbackApp && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-[2.5rem] w-full max-w-lg p-10 animate-in fade-in zoom-in duration-300">
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[1000] flex items-center justify-center p-4">
+          <div className="bg-white rounded-[2.5rem] w-full max-w-lg p-10 animate-in fade-in zoom-in duration-300 no-scrollbar relative">
+            <button 
+              onClick={() => setFeedbackApp(null)}
+              className="absolute top-8 right-8 p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition"
+            >
+              <X size={24} />
+            </button>
             <h2 className="text-3xl font-bold text-slate-900 mb-2">
               {feedbackApp.status === 'ACCEPTED' ? 'Chấp nhận hồ sơ' : 'Từ chối hồ sơ'}
             </h2>

@@ -28,6 +28,7 @@ const VnpaySimulator = () => {
     const [loading, setLoading] = useState(false);
     const [otp, setOtp] = useState('');
     const [countdown, setCountdown] = useState(120);
+    const [error, setError] = useState('');
 
     // Mock Card Data
     const [cardInfo, setCardInfo] = useState({
@@ -53,6 +54,11 @@ const VnpaySimulator = () => {
     };
 
     const finalizePayment = (code) => {
+        if (code === '00' && otp !== '123456') {
+            setError('Mã OTP không chính xác. Vui lòng nhập 123456 để thử nghiệm.');
+            return;
+        }
+        setError('');
         setLoading(true);
         setTimeout(() => {
             const callbackUrl = `http://localhost:8088/api/public/vnpay/callback?vnp_ResponseCode=${code}&vnp_TxnRef=${txnRef}`;
@@ -317,10 +323,14 @@ const VnpaySimulator = () => {
                                             type="text"
                                             maxLength={6}
                                             value={otp}
-                                            onChange={(e) => setOtp(e.target.value)}
-                                            className="w-full bg-slate-50 border-2 border-slate-100 rounded-3xl p-6 text-center text-3xl font-black tracking-[0.5em] text-[#005baa] focus:border-[#005baa] transition-all outline-none"
+                                            onChange={(e) => {
+                                                setOtp(e.target.value);
+                                                if (error) setError('');
+                                            }}
+                                            className={`w-full bg-slate-50 border-2 ${error ? 'border-rose-500' : 'border-slate-100'} rounded-3xl p-6 text-center text-3xl font-black tracking-[0.5em] text-[#005baa] focus:border-[#005baa] transition-all outline-none`}
                                             placeholder="******"
                                         />
+                                        {error && <p className="mt-3 text-xs font-bold text-rose-500 animate-bounce">{error}</p>}
                                     </div>
 
                                     <div className="space-y-4">

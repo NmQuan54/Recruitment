@@ -125,9 +125,47 @@ public class ApplicationController {
     @PostMapping("/employer/applications/{applicationId}/slots")
     public ResponseEntity<?> setInterviewSlots(
             @PathVariable Long applicationId,
-            @RequestBody List<com.recruitment.entity.InterviewSlot> slots,
+            @RequestBody Map<String, Object> payload,
             Authentication authentication) {
-        return ResponseEntity.ok(interviewService.setInterviewSlots(authentication.getName(), applicationId, slots));
+        
+        try {
+            System.out.println("DEBUG: setInterviewSlots payload=" + payload);
+            @SuppressWarnings("unchecked")
+            List<Map<String, String>> slotsData = (List<Map<String, String>>) payload.get("slots");
+            String notes = (String) payload.get("notes");
+            
+            if (slotsData == null) {
+                return ResponseEntity.badRequest().body(Map.of("message", "Danh sách khung giờ không được trống"));
+            }
+
+            List<com.recruitment.entity.InterviewSlot> slots = slotsData.stream().map(s -> {
+                com.recruitment.entity.InterviewSlot slot = new com.recruitment.entity.InterviewSlot();
+                String startStr = s.get("startTime");
+                String endStr = s.get("endTime");
+                
+                if (startStr == null || endStr == null) {
+                    throw new RuntimeException("Thời gian bắt đầu/kết thúc không được trống");
+                }
+                
+                // Flexible parsing
+                String sStr = startStr.length() == 16 ? startStr + ":00" : startStr;
+                String eStr = endStr.length() == 16 ? endStr + ":00" : endStr;
+                
+                slot.setStartTime(LocalDateTime.parse(sStr));
+                slot.setEndTime(LocalDateTime.parse(eStr));
+                return slot;
+            }).collect(java.util.stream.Collectors.toCollection(java.util.ArrayList::new));
+
+            return ResponseEntity.ok(interviewService.setInterviewSlots(authentication.getName(), applicationId, slots, notes));
+        } catch (Exception e) {
+            System.err.println("CRITICAL ERROR in setInterviewSlots: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(Map.of(
+                "message", "Lỗi server: " + e.getMessage(),
+                "details", e.toString(),
+                "timestamp", LocalDateTime.now().toString()
+            ));
+        }
     }
 
     @PreAuthorize("hasAnyRole('EMPLOYER', 'ADMIN')")

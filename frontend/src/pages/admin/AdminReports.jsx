@@ -51,9 +51,6 @@ const AdminReports = () => {
           <h1 className="text-4xl font-bold text-slate-900  mb-2">Báo cáo & Thống kê</h1>
           <p className="text-slate-500 font-bold">Tổng quan tiến độ và hiệu suất hoạt động của toàn bộ nền tảng.</p>
         </div>
-        <button className="px-6 py-3 bg-brand-600 text-white rounded-2xl font-bold text-sm flex items-center gap-2 shadow-xl hover:bg-brand-700 transition">
-          <Calendar size={18} /> Tải báo cáo tháng 03/2026
-        </button>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
@@ -74,35 +71,8 @@ const AdminReports = () => {
          ))}
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-10">
-         <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm relative overflow-hidden group">
-            <div className="flex items-center justify-between mb-10">
-               <h2 className="text-2xl font-bold text-slate-900  flex items-center gap-3">
-                  <BarChart className="text-brand-600" /> Tăng trưởng hồ sơ
-               </h2>
-               <button className="text-brand-500 font-bold text-xs uppercase  flex items-center gap-1 group-hover:gap-2 transition-all">
-                  Xem chi tiết <ChevronRight size={14} />
-               </button>
-            </div>
-            <div className="h-64 flex items-end justify-between gap-4 px-4">
-               {[40, 70, 45, 90, 65, 80, 100].map((h, i) => (
-                 <div key={i} className="flex-1 flex flex-col items-center gap-4">
-                    <div 
-                      className="w-full bg-slate-50 rounded-2xl relative overflow-hidden group/bar"
-                      style={{ height: '100%' }}
-                    >
-                       <div 
-                         className="absolute bottom-0 w-full bg-brand-600 rounded-2xl transition-all duration-1000 group-hover:bg-slate-900"
-                         style={{ height: `${h}%` }}
-                       ></div>
-                    </div>
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ">{['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'][i]}</span>
-                 </div>
-               ))}
-            </div>
-         </div>
-
-         <div className="bg-brand-600 text-white p-10 rounded-[3rem] shadow-2xl relative overflow-hidden group">
+      <div className="grid grid-cols-1 gap-10">
+         <div className="bg-brand-600 text-white p-10 rounded-[3rem] shadow-2xl relative overflow-hidden group max-w-4xl mx-auto w-full">
             <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-32 -mt-32"></div>
             <div className="flex items-center justify-between mb-10 relative z-10">
                <h2 className="text-2xl font-bold flex items-center gap-3">
@@ -123,8 +93,8 @@ const AdminReports = () => {
                     </div>
                     <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
                        <div 
-                         className={`h-full ${item.color} transition-all duration-1000`}
-                         style={{ width: `${item.value}%` }}
+                         className="h-full bg-current transition-all duration-1000"
+                         style={{ width: `${item.value}%`, backgroundColor: item.color === 'bg-white' ? 'white' : '' }}
                        ></div>
                     </div>
                  </div>

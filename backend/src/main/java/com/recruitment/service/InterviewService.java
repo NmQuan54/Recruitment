@@ -22,9 +22,15 @@ public class InterviewService {
     private NotificationService notificationService;
 
     @Transactional
-    public List<InterviewSlot> setInterviewSlots(String employerEmail, Long applicationId, List<InterviewSlot> slots) {
+    public List<InterviewSlot> setInterviewSlots(String employerEmail, Long applicationId, List<InterviewSlot> slots, String notes) {
         Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn ứng tuyển"));
+        
+        // Update notes if provided
+        if (notes != null && !notes.isEmpty()) {
+            application.setInterviewNotes(notes);
+            applicationRepository.save(application);
+        }
 
         if (!application.getJob().getCompany().getUser().getEmail().equals(employerEmail)) {
             throw new RuntimeException("Bạn không có quyền quản lý lịch phỏng vấn này");

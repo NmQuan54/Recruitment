@@ -46,6 +46,12 @@ public class JobService {
     @Autowired
     private com.recruitment.repository.ChatRoomRepository chatRoomRepository;
 
+    @Autowired
+    private com.recruitment.repository.InterviewSlotRepository interviewSlotRepository;
+
+    @Autowired
+    private com.recruitment.repository.PaymentTransactionRepository paymentTransactionRepository;
+
     public Page<Job> searchJobs(String keyword, String location, String jobType,
             BigDecimal salaryMin, BigDecimal salaryMax, Long categoryId, Long companyId, Pageable pageable) {
         return jobRepository.searchJobsAdvanced(keyword, location, jobType, salaryMin, salaryMax, categoryId, companyId,
@@ -237,11 +243,25 @@ public class JobService {
         Job job = getJobById(jobId);
         verifyEmployerOwnership(userEmail, job);
 
+        // 0. Trước hết gỡ bỏ mối quan hệ ManyToMany với Category
+        job.getCategories().clear();
+        jobRepository.saveAndFlush(job);
+
+        // 1. Dọn dẹp tin nhắn và phòng chat
         chatMessageRepository.deleteByRoomJobId(jobId);
         chatRoomRepository.deleteByJobId(jobId);
+
+        // 2. Dọn dẹp lịch phỏng vấn của tất cả hồ sơ thuộc tin này
+        interviewSlotRepository.deleteByJobId(jobId);
+
+        // 3. Xóa hồ sơ ứng tuyển và các lần lưu tin
         applicationRepository.deleteByJobId(jobId);
         savedJobRepository.deleteByJobId(jobId);
 
+        // 4. Gỡ liên kết công việc trong các giao dịch thanh toán
+        paymentTransactionRepository.nullifyJobInTransactions(jobId);
+
+        // 5. Cuối cùng mới xóa tin tuyển dụng
         jobRepository.delete(job);
     }
 }

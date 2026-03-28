@@ -4,10 +4,12 @@ import com.recruitment.entity.Category;
 import com.recruitment.entity.Company;
 import com.recruitment.entity.Job;
 import com.recruitment.entity.User;
+import com.recruitment.entity.PaymentTransaction;
 import com.recruitment.repository.CategoryRepository;
 import com.recruitment.repository.CompanyRepository;
 import com.recruitment.repository.JobRepository;
 import com.recruitment.repository.UserRepository;
+import com.recruitment.repository.PaymentTransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -35,9 +37,8 @@ public class AdminController {
     private JobRepository jobRepository;
 
     @Autowired
-    private com.recruitment.repository.PaymentTransactionRepository paymentTransactionRepository;
+    private PaymentTransactionRepository paymentTransactionRepository;
 
-    
     @GetMapping("/companies")
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional(readOnly = true)
@@ -56,7 +57,8 @@ public class AdminController {
     @Transactional
     public ResponseEntity<?> updateCompanyStatus(@PathVariable Long id, @RequestParam boolean active) {
         try {
-            Company company = companyRepository.findById(id).orElseThrow();
+            Company company = companyRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Company not found with id: " + id));
             company.getUser().setActive(active);
             userRepository.save(company.getUser());
             companyRepository.save(company);
@@ -67,7 +69,6 @@ public class AdminController {
         }
     }
 
-    
     @GetMapping("/categories")
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional(readOnly = true)
@@ -90,7 +91,22 @@ public class AdminController {
         return ResponseEntity.ok().build();
     }
 
-    
+    @PutMapping("/categories/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
+    public ResponseEntity<Category> updateCategory(@PathVariable Long id, @RequestBody Category categoryDetails) {
+        try {
+            Category category = categoryRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Category not found with id: " + id));
+            category.setName(categoryDetails.getName());
+            category.setDescription(categoryDetails.getDescription());
+            return ResponseEntity.ok(categoryRepository.save(category));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
     @GetMapping("/users")
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional(readOnly = true)
@@ -109,7 +125,8 @@ public class AdminController {
     @Transactional
     public ResponseEntity<?> updateUserStatus(@PathVariable Long id, @RequestParam boolean active) {
         try {
-            User user = userRepository.findById(id).orElseThrow();
+            User user = userRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
             user.setActive(active);
             userRepository.save(user);
             return ResponseEntity.ok().build();
@@ -119,7 +136,6 @@ public class AdminController {
         }
     }
 
-    
     @GetMapping("/jobs")
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional(readOnly = true)
@@ -141,7 +157,6 @@ public class AdminController {
         return ResponseEntity.ok().build();
     }
 
-    
     @GetMapping("/stats")
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional(readOnly = true)
@@ -152,14 +167,14 @@ public class AdminController {
             stats.put("totalCompanies", companyRepository.count());
             stats.put("totalJobs", jobRepository.count());
             stats.put("totalCategories", categoryRepository.count());
-            
+
             // Calculate total revenue from SUCCESS transactions
             Long totalRevenue = paymentTransactionRepository.findAll().stream()
                     .filter(t -> "SUCCESS".equals(t.getStatus()))
-                    .mapToLong(t -> t.getAmount())
+                    .mapToLong(PaymentTransaction::getAmount)
                     .sum();
             stats.put("totalRevenue", totalRevenue);
-            
+
             return ResponseEntity.ok(stats);
         } catch (Exception e) {
             e.printStackTrace();

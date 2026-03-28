@@ -9,7 +9,8 @@ import {
   CheckCircle2,
   XCircle,
   Clock,
-  DollarSign
+  DollarSign,
+  X
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
@@ -157,8 +158,14 @@ const AdminPromotionPackages = () => {
             </div>
 
             {showModal && (
-                <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[100] flex items-start justify-center p-4 overflow-y-auto pt-20 pb-20">
+                <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[1000] flex items-start justify-center p-4 overflow-y-auto pt-20 pb-20 no-scrollbar">
                     <div className="bg-white rounded-[3rem] w-full max-w-xl p-10 animate-in fade-in zoom-in duration-300 shadow-2xl relative mt-auto mb-auto">
+                        <button 
+                            onClick={() => setShowModal(false)}
+                            className="absolute top-8 right-8 p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition"
+                        >
+                            <X size={24} />
+                        </button>
                         <h2 className="text-3xl font-bold text-slate-900 mb-8">{editingPkg ? 'Chỉnh sửa gói' : 'Tạo gói quảng cáo'}</h2>
                         <form onSubmit={handleSubmit} className="space-y-6">
                             <div>

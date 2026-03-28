@@ -7,7 +7,9 @@ import {
   Loader2,
   Tag,
   AlignLeft,
-  Search
+  Search,
+  Edit,
+  X
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
@@ -16,6 +18,9 @@ const AdminCategories = () => {
   const [newCategory, setNewCategory] = useState({ name: '', description: '' });
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [editingCat, setEditingCat] = useState(null);
+  const [editFormData, setEditFormData] = useState({ name: '', description: '' });
+  const [showEditModal, setShowEditModal] = useState(false);
 
   const fetchCategories = async () => {
     try {
@@ -52,6 +57,24 @@ const AdminCategories = () => {
       fetchCategories();
     } catch (_) {
       toast.error('Có lỗi xảy ra hoặc danh mục đang có việc làm');
+    }
+  };
+
+  const handleOpenEdit = (cat) => {
+    setEditingCat(cat);
+    setEditFormData({ name: cat.name, description: cat.description || '' });
+    setShowEditModal(true);
+  };
+
+  const handleUpdateCategory = async (e) => {
+    e.preventDefault();
+    try {
+      await api.put(`/admin/categories/${editingCat.id}`, editFormData);
+      toast.success('Cập nhật thành công');
+      setShowEditModal(false);
+      fetchCategories();
+    } catch (_) {
+      toast.error('Có lỗi xảy ra khi cập nhật');
     }
   };
 
@@ -143,13 +166,69 @@ const AdminCategories = () => {
                     </p>
                     <div className="mt-4 pt-4 border-t border-slate-50 flex items-center justify-between">
                        <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest ">ID: #{cat.id}</span>
-                       <span className="text-[10px] font-bold text-brand-500  uppercase">Xem chi tiết</span>
+                       <button 
+                         onClick={() => handleOpenEdit(cat)}
+                         className="text-[10px] font-bold text-brand-500 hover:text-brand-700 uppercase cursor-pointer"
+                       >
+                         Xem chi tiết
+                       </button>
                     </div>
                  </div>
               ))}
            </div>
         </div>
       </div>
+
+      {showEditModal && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[1000] flex items-center justify-center p-4 no-scrollbar">
+          <div className="bg-white rounded-[2.5rem] w-full max-w-xl p-10 animate-in fade-in zoom-in duration-300 relative shadow-2xl">
+            <button 
+              onClick={() => setShowEditModal(false)}
+              className="absolute top-8 right-8 p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition"
+            >
+              <X size={24} />
+            </button>
+            <h2 className="text-3xl font-bold text-slate-900 mb-2">Chỉnh sửa danh mục</h2>
+            <p className="text-slate-500 font-medium mb-8">Cập nhật thông tin ngành nghề cho hệ thống.</p>
+            
+            <form onSubmit={handleUpdateCategory} className="space-y-6">
+              <div>
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2 ml-1">Tên ngành nghề</label>
+                <input 
+                  required
+                  type="text" 
+                  className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold text-slate-900 focus:border-brand-500 transition-all outline-none"
+                  value={editFormData.name}
+                  onChange={(e) => setEditFormData({...editFormData, name: e.target.value})}
+                />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2 ml-1">Mô tả chi tiết</label>
+                <textarea 
+                  className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold text-slate-900 h-40 focus:border-brand-500 transition-all outline-none resize-none"
+                  value={editFormData.description}
+                  onChange={(e) => setEditFormData({...editFormData, description: e.target.value})}
+                ></textarea>
+              </div>
+              <div className="flex gap-4 pt-4">
+                <button 
+                  type="button"
+                  onClick={() => setShowEditModal(false)}
+                  className="flex-1 py-4 bg-slate-100 text-slate-500 rounded-2xl font-bold hover:bg-slate-200 transition"
+                >
+                  Hủy
+                </button>
+                <button 
+                  type="submit" 
+                  className="flex-1 py-4 bg-brand-600 text-white rounded-2xl font-bold hover:bg-slate-900 transition shadow-xl shadow-brand-200"
+                >
+                  Lưu thay đổi
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
